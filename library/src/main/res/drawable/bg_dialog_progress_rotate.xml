@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rotate xmlns:android="http://schemas.android.com/apk/res/android"
+        android:fromDegrees="0"
+        android:toDegrees="1080"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        >
+    <shape android:innerRadiusRatio="3"
+        android:shape="ring"
+        android:thicknessRatio="10"
+        android:useLevel="false">
+        <gradient
+                android:centerY="0.50"
+                android:endColor="@color/colorAccent"
+                android:centerColor="@color/colorAccent"
+                android:startColor="#FFFFFF"
+                android:type="sweep"
+                />
+<!--                android:centerColor="#FFDC35"-->
+<!--                android:endColor="#CE0000"-->
+<!--                android:startColor="#FFFFFF"-->
+
+    </shape>
+</rotate>
+<!--
+  外层的 rotate 表明这是一个旋转的动画，并且该规定了开始角度和结束角度，还有旋转中心为圆心
+  内层的shape定义了形状为一个环(ring)，其中有三个属性：
+  <1> innerRadiusRatio 为外环半径和内径的比值，比如外环半径为30，内环半径为10，则比值为3
+  <2> thicknessRatio 为外环半径与环的厚度的比值
+  <3> useLevel 如果为true，则可以在LevelListDrawable中使用
+
+   接下来的 gradient 定义了渐变效果，规定了开始结束的颜色，还规定渐变方式为扫描渐变
+
+-->
