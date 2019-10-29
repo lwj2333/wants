@@ -17,6 +17,9 @@
         <item name="android:backgroundDimEnabled">true</item>
         <!-- 遮罩层 -->
         <item name="android:backgroundDimAmount">0.3</item>
+
+        <item name="android:windowEnterAnimation">@anim/dialog_center_enter</item>
+        <item name="android:windowExitAnimation">@anim/dialog_center_exit</item>
     </style>
 
 </resources>
