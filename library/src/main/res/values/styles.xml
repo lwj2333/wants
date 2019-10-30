@@ -3,7 +3,7 @@
 
 
     <!--    提示框    -->
-    <style name="DialogTheme" parent="@android:style/Theme.Dialog">
+    <style name="HintDialogTheme" parent="@android:style/Theme.Dialog">
         <!-- 边框 -->
         <item name="android:windowFrame">@null</item>
         <!-- 是否浮现在activity之上 -->
@@ -22,5 +22,21 @@
         <item name="android:windowEnterAnimation">@anim/dialog_center_enter</item>
         <item name="android:windowExitAnimation">@anim/dialog_center_exit</item>
     </style>
-
+    <style name="ProgressDialogTheme" parent="@android:style/Theme.Dialog">
+        <!-- 边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- 是否浮现在activity之上 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <!-- 背景透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 模糊 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 遮罩层 -->
+        <item name="android:backgroundDimAmount">0.3</item>
+    </style>
 </resources>

@@ -4,7 +4,8 @@ package com.lwj.example
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-
+import androidx.core.content.ContextCompat
+import com.lwj.wants.util.ProgressDialogUtil
 import com.lwj.wants.view.HintTwoDialog
 import com.lwj.wants.view.ProgressDialog
 import kotlinx.android.synthetic.main.activity_main.*
@@ -17,9 +18,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         bt1.setOnClickListener(this)
         bt2.setOnClickListener(this)
-        progress =  ProgressDialog(this)
+
     }
-    var progress :ProgressDialog?=null
+
     override fun onClick(v: View?) {
         when(v?.id){
             R.id.bt1->{
@@ -37,7 +38,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
             }
             R.id.bt2->{
-                progress?.setContent("正在加载中")?.show()
+//                ContextCompat.getDrawable(this,R.color.baby_blue)?.let {
+//                    ProgressDialog(this).setContent("正在加载中").setDrawable(
+//                        it
+//                    ).show()
+//                }
+              // ProgressDialog(this).setMessage("正在加载中").show()
+                ProgressDialogUtil.showProgressDialog(this)
             }
         }
 

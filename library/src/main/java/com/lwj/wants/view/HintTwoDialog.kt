@@ -15,24 +15,20 @@ import kotlinx.android.synthetic.main.dialog_two_hint.*
  * @describe 添加描述
  */
 class HintTwoDialog :Dialog, View.OnClickListener {
-    constructor(context: Context) : super(context,R.style.DialogTheme)
+    constructor(context: Context) : super(context,R.style.HintDialogTheme)
     constructor(context: Context, themeResId: Int) : super(context, themeResId)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(layoutID)
-    }
-
-
-    override fun onStart() {
-        super.onStart()
         val lp = window?.attributes
         window?.setGravity(Gravity.CENTER)
         val displayMetrics = context.resources.displayMetrics
         lp?.width = (displayMetrics.widthPixels * 0.7f).toInt()
         window?.attributes = lp
         initView()
+
     }
 
     private var content: String? = null
