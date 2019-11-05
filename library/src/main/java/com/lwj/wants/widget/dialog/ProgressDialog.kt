@@ -1,4 +1,4 @@
-package com.lwj.wants.view
+package com.lwj.wants.widget.dialog
 
 import android.app.Dialog
 import android.content.Context
@@ -33,11 +33,11 @@ class ProgressDialog :Dialog {
     private var msg :String?=null
     private var drawable: Drawable?=null
 
-    fun setDrawable(drawable: Drawable):ProgressDialog{
+    fun setDrawable(drawable: Drawable): ProgressDialog {
         this.drawable=drawable
         return this
     }
-    fun setMessage(msg:String):ProgressDialog{
+    fun setMessage(msg:String): ProgressDialog {
         this.msg =msg
         if (tv_dialog_progress!=null){
             tv_dialog_progress.text=msg

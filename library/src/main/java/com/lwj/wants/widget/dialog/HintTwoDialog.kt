@@ -1,4 +1,4 @@
-package com.lwj.wants.view
+package com.lwj.wants.widget.dialog
 
 import android.app.Dialog
 import android.content.Context

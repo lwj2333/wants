@@ -2,7 +2,7 @@ package com.lwj.wants.util
 
 import android.app.Activity
 import android.content.DialogInterface
-import com.lwj.wants.view.ProgressDialog
+import com.lwj.wants.widget.dialog.ProgressDialog
 
 class ProgressDialogUtil {
     companion object {
