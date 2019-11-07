@@ -2,11 +2,12 @@ package com.lwj.wants.widget.tab
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import androidx.core.content.ContextCompat
+
 import com.lwj.wants.util.DensityUtil
 import com.lwj.wants.widget.tab.model.RadioItem
 import java.util.ArrayList

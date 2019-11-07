@@ -2,8 +2,9 @@ package com.lwj.example
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+
 
 @SuppressLint("Registered")
 open class BaseActivity : AppCompatActivity() {
