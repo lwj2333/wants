@@ -1,6 +1,7 @@
 package com.lwj.example.tab
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.widget.LinearLayout
 import com.lwj.example.BaseActivity
@@ -9,6 +10,7 @@ import com.lwj.wants.widget.dialog.HintTwoDialog
 import com.lwj.wants.widget.tab.model.RadioItem
 import kotlinx.android.synthetic.main.activity_tab.*
 import skin.support.SkinCompatManager
+
 import java.util.ArrayList
 
 class TabActivity :BaseActivity() {
@@ -17,7 +19,9 @@ class TabActivity :BaseActivity() {
         setContentView(R.layout.activity_tab)
         initList()
         radio.orientation =LinearLayout.HORIZONTAL
-        radio.setDrawableSize(60f)
+        radio.setDrawableSize(40f)
+        radio.setPadding(10F)
+
         radio.addData(data)
         radio.check(0)
         tb.setOnClickListener {
@@ -37,15 +41,22 @@ class TabActivity :BaseActivity() {
                 .setContent("是否删除？")
                 .show()
         }
+        tv2.setOnClickListener {
+              Log.i(TAG,"TabActivity: ${radio.getChildAt(0).background}  ")
+        }
+
+
 
     }
+    private val TAG ="TabActivity"
     private val data : ArrayList<RadioItem> = ArrayList()
+
     private fun initList(){
 
         data.add(
             RadioItem(
                 "首页", R.drawable.bg_selector_tab_radiobutton,
-                R.mipmap.ic_launcher, R.color.tc_selector_tab_radiobutton, true
+                R.drawable.bg_selector_tab_rb, R.color.tc_selector_tab_radiobutton, true
             )
         )
         data.add(
@@ -60,5 +71,6 @@ class TabActivity :BaseActivity() {
                 R.mipmap.ic_launcher, R.color.tc_selector_tab_radiobutton, false
             )
         )
+
     }
 }

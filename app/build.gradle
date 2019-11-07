@@ -39,6 +39,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(path: ':library')
 
+
     implementation 'skin.support:skin-support:4.0.4'                   // skin-support
     implementation 'skin.support:skin-support-appcompat:4.0.4'         // skin-support 基础控件支持
 

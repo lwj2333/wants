@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryDark_night">#FDD835</color>
+
+
     <color name="example_light_blue_night">#FDD835</color>
+
 </resources>
