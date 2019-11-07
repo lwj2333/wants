@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.SkinAppCompatDelegateImpl
 
 @SuppressLint("Registered")
 open class BaseActivity : AppCompatActivity() {
@@ -13,5 +15,8 @@ open class BaseActivity : AppCompatActivity() {
     protected fun jumpActivity(activityClass: Class<*>) {
         val it = Intent(this, activityClass)
         startActivity(it)
+    }
+    override fun getDelegate(): AppCompatDelegate {
+        return SkinAppCompatDelegateImpl.get(this, this)
     }
 }

@@ -8,6 +8,7 @@ import com.lwj.example.R
 import com.lwj.wants.util.ProgressDialogUtil
 import com.lwj.wants.widget.dialog.HintTwoDialog
 import kotlinx.android.synthetic.main.activity_dialog.*
+import skin.support.SkinCompatManager
 
 class DialogActivity :BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +25,10 @@ class DialogActivity :BaseActivity(), View.OnClickListener {
                         override fun onListener(dialog: HintTwoDialog, b: Boolean) {
                             if (b) {
                                 showToast("删除")
+                                SkinCompatManager.getInstance().loadSkin("night",
+                                    null, SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN)
+                            }else{
+                                SkinCompatManager.getInstance().restoreDefaultTheme()
                             }
                             dialog.dismiss()
                         }

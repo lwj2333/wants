@@ -19,7 +19,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:drawableTop="@mipmap/ic_launcher"
+                android:background="@drawable/bg_selector_tab_radiobutton"
                 android:gravity="center"
                 android:checked="true"
                 android:text="RadioButton"
@@ -31,9 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:drawableTop="@mipmap/ic_launcher"
+                android:background="@drawable/bg_selector_tab_radiobutton"
                 android:text="RadioButton"
                 android:gravity="center"
+
                 android:button="@null"
                 android:textSize="18sp" />
     </RadioGroup>
@@ -52,4 +53,26 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+            android:id="@+id/tb"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="TextView"
+            android:background="@drawable/bg_selector_tab_radiobutton"
+            app:layout_constraintBottom_toTopOf="@+id/rg_all"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+            android:id="@+id/tv2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:text="TextView"
+            android:background="@color/example_light_blue"
+            app:layout_constraintBottom_toTopOf="@+id/tb"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

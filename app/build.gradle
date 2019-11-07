@@ -20,6 +20,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDir 'Libs'
+            jni.srcDirs = []
+            res.srcDirs=['src/main/res', 'src/main/res-night']
+        }
+    }
 }
 
 dependencies {
@@ -31,4 +38,9 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(path: ':library')
+
+    implementation 'skin.support:skin-support:4.0.4'                   // skin-support
+    implementation 'skin.support:skin-support-appcompat:4.0.4'         // skin-support 基础控件支持
+
+
 }
