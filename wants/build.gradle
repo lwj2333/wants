@@ -16,9 +16,9 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
     }
     // 修改moduleName
-    compileOptions {
-        kotlinOptions.freeCompilerArgs += ['-module-name', "wants.$PUBLISH_ARTIFACT_ID"]
-    }
+//    compileOptions {
+//        kotlinOptions.freeCompilerArgs += ['-module-name', "wants.$PUBLISH_ARTIFACT_ID"]
+//    }
     buildTypes {
         release {
             minifyEnabled false
