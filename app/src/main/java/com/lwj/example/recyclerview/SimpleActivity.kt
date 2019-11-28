@@ -1,6 +1,7 @@
 package com.lwj.example.recyclerview
 
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.widget.TextView
@@ -8,6 +9,8 @@ import com.lwj.example.BaseActivity
 import com.lwj.example.R
 import com.lwj.wants.recyclerview.adapter.BaseViewHolder
 import com.lwj.wants.recyclerview.adapter.RecyclerAdapterList
+import com.lwj.wants.recyclerview.util.RecycleViewDivider
+import com.lwj.wants.util.DensityUtil
 import kotlinx.android.synthetic.main.activity_simple.*
 
 class SimpleActivity : BaseActivity() {
@@ -16,6 +19,12 @@ class SimpleActivity : BaseActivity() {
         setContentView(R.layout.activity_simple)
         initList()
         recycler.layoutManager = LinearLayoutManager(this)
+        recycler.addItemDecoration(
+            RecycleViewDivider(
+                this, LinearLayoutManager.HORIZONTAL,
+                DensityUtil.dip2px(this, 2f), ContextCompat.getColor(this, R.color.red)
+            )
+        )
         adapter = object : RecyclerAdapterList<TestModel>(this, list, R.layout.item_simple) {
             override fun bindView(viewHolder: BaseViewHolder, bean: TestModel, position: Int) {
                 val tName: TextView = viewHolder.getView(R.id.tv_name)
@@ -28,7 +37,8 @@ class SimpleActivity : BaseActivity() {
         recycler.adapter = adapter
 
     }
-private val TAG ="SimpleActivity"
+
+    private val TAG = "SimpleActivity"
     private val list: ArrayList<TestModel> = ArrayList()
     private var adapter: RecyclerAdapterList<TestModel>? = null
     private fun initList() {

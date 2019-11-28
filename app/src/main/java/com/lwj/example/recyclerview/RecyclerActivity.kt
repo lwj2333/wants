@@ -15,6 +15,9 @@ class RecyclerActivity : BaseActivity(), View.OnClickListener {
             R.id.bt_more -> {
                 jumpActivity(MoreActivity::class.java)
             }
+            R.id.bt_sliding->{
+                jumpActivity(SlidingActivity::class.java)
+            }
         }
     }
 
@@ -23,8 +26,8 @@ class RecyclerActivity : BaseActivity(), View.OnClickListener {
         setContentView(R.layout.activity_recycler)
         bt_more.setOnClickListener(this)
         bt_simple.setOnClickListener(this)
+        bt_sliding.setOnClickListener(this)
     }
 
-    val <T> List<T>.penultimate: T
-        get() = this[size - 1]
+
 }

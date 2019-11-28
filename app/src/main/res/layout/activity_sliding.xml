@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:background="@color/line"
+        android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <com.lwj.wants.recyclerview.SlidingLayout
+            android:layout_width="0dp"
+            android:layout_height="600dp"
+            android:background="@color/baby_blue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+app:sl_pointer_mode="one"
+            >
+
+        <TextView
+                android:id="@+id/tv_sliding"
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/app_name" />
+    </com.lwj.wants.recyclerview.SlidingLayout>
+</android.support.constraint.ConstraintLayout>

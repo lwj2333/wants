@@ -2,6 +2,7 @@ package com.lwj.example.recyclerview
 
 import android.content.Context
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,8 @@ import com.lwj.example.BaseActivity
 import com.lwj.example.R
 import com.lwj.wants.recyclerview.adapter.BaseViewHolder
 import com.lwj.wants.recyclerview.adapter.RecyclerAdapterMore
+import com.lwj.wants.recyclerview.util.RecycleViewDivider
+import com.lwj.wants.util.DensityUtil
 import kotlinx.android.synthetic.main.activity_simple.*
 
 class MoreActivity : BaseActivity() {
@@ -19,6 +22,8 @@ class MoreActivity : BaseActivity() {
         setContentView(R.layout.activity_simple)
         initList()
         recycler.layoutManager = LinearLayoutManager(this)
+        recycler.addItemDecoration(RecycleViewDivider(this, LinearLayoutManager.HORIZONTAL,
+            DensityUtil.dip2px(this,2f), ContextCompat.getColor(this, R.color.red)))
         adapter = object : RecyclerAdapterMore<TestModel>(this, list) {
             override fun createView(
                 context: Context, inflater: LayoutInflater,

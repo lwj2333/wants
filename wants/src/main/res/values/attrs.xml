@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CSpinner">
+        <attr name="spinner_icon" format="integer" />
+        <attr name="spinner_text_size" format="dimension" />
+        <attr name="spinner_text_color" format="color" />
+        <attr name="spinner_padding" format="integer" />
+        <attr name="spinner_default_content" format="string"/>
+        <attr name="durationTime" format="integer"/>
+        <attr name="spinner_popup_item_drawable" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="SlidingLayout">
+        <attr name="sl_background_view" format="reference" />
+        <attr name="sl_top_view" format="reference" />
+        <attr name="sl_bottom_view" format="reference" />
+        <attr name="sl_mode" format="enum">
+            <enum name="both" value="0" />
+            <enum name="top" value="1" />
+            <enum name="bottom" value="2" />
+        </attr>
+        <attr name="sl_pointer_mode" format="enum">
+            <enum name="one" value="0" />
+            <enum name="more" value="1" />
+        </attr>
+        <attr name="sl_top_max" format="dimension" />
+        <attr name="sl_defaultTouchDistance" format="dimension" />
+        <attr name="sl_bottom_max" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="NoScrollGridLayout">
+        <attr name="nsg_count" format="integer"/>
+        <attr name="nsg_rowMargin" format="dimension"/>
+        <attr name="nsg_columnMargin" format="dimension" />
+    </declare-styleable>
+
+</resources>

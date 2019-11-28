@@ -1,4 +1,4 @@
-package com.lwj.slidinglayout;
+package com.lwj.wants.recyclerview.util;
 
 import android.content.Context;
 import android.content.res.TypedArray;

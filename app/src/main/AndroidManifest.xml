@@ -10,11 +10,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".tab.TabActivity" >
@@ -23,6 +19,19 @@
         <activity android:name=".recyclerview.RecyclerActivity" />
         <activity android:name=".recyclerview.SimpleActivity" />
         <activity android:name=".recyclerview.MoreActivity" />
+        <activity android:name=".spinner.SpinnerActivity" >
+
+        </activity>
+        <activity android:name=".recyclerview.SlidingActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".recyclerview.EventTestActivity" >
+
+        </activity>
     </application>
 
 </manifest>

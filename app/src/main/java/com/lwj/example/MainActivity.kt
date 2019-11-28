@@ -5,8 +5,10 @@ package com.lwj.example
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import com.lwj.example.dialog.DialogActivity
 import com.lwj.example.recyclerview.RecyclerActivity
+import com.lwj.example.spinner.SpinnerActivity
 import com.lwj.example.tab.TabActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -20,6 +22,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         bt_dialog.setOnClickListener(this)
         bt_tab.setOnClickListener(this)
         bt_recycler.setOnClickListener(this)
+        bt_spinner.setOnClickListener(this)
 
     }
 
@@ -33,6 +36,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             }
             R.id.bt_recycler->{
                 jumpActivity(RecyclerActivity::class.java)
+            }
+            R.id.bt_spinner->{
+                jumpActivity(SpinnerActivity::class.java)
             }
         }
 
