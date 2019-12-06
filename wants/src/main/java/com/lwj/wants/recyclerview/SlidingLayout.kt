@@ -17,7 +17,6 @@ import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_DISTANCE_U
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTH
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTTOM
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_TOP
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_POINTER_MODE_MORE
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SMOOTH_DURATION
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_IDLE
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_SLIDING
@@ -51,8 +50,6 @@ class SlidingLayout : ViewGroup {
          */
         val SLIDING_MODE_BOTTOM = 2
 
-        val SLIDING_POINTER_MODE_ONE = 0
-        val SLIDING_POINTER_MODE_MORE = 1
 
         private val INVALID_POINTER = -1
 
@@ -89,9 +86,8 @@ class SlidingLayout : ViewGroup {
 
     private var mSlidingMode = SLIDING_MODE_BOTH
 
-    private var mSlidingPointerMode = SLIDING_POINTER_MODE_MORE
 
-    private var mSlidingListener:SlidingListener? = null
+    private var mSlidingListener: SlidingListener? = null
     private var animaListener: Animator.AnimatorListener? = null
     private var actionListener: ActionListener? = null
 
@@ -108,14 +104,26 @@ class SlidingLayout : ViewGroup {
 
     private fun init(context: Context, attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SlidingLayout)
-        mBackgroundViewLayoutId = typedArray.getResourceId(R.styleable.SlidingLayout_sl_background_view, mBackgroundViewLayoutId)
+        mBackgroundViewLayoutId = typedArray.getResourceId(
+            R.styleable.SlidingLayout_sl_background_view,
+            mBackgroundViewLayoutId
+        )
         mTopViewId = typedArray.getResourceId(R.styleable.SlidingLayout_sl_top_view, mTopViewId)
-        mBottomViewId = typedArray.getResourceId(R.styleable.SlidingLayout_sl_bottom_view, mBottomViewId)
+        mBottomViewId =
+            typedArray.getResourceId(R.styleable.SlidingLayout_sl_bottom_view, mBottomViewId)
         mSlidingMode = typedArray.getInteger(R.styleable.SlidingLayout_sl_mode, SLIDING_MODE_BOTH)
-        mSlidingPointerMode = typedArray.getInteger(R.styleable.SlidingLayout_sl_pointer_mode, SLIDING_POINTER_MODE_MORE)
-        mSlidingTopMaxDistance = typedArray.getDimensionPixelSize(R.styleable.SlidingLayout_sl_top_max, SLIDING_DISTANCE_UNDEFINED)
-        mSlidingBottomMaxDistance = typedArray.getDimensionPixelSize(R.styleable.SlidingLayout_sl_bottom_max, SLIDING_DISTANCE_UNDEFINED)
-        defaultTouchDistance = typedArray.getDimensionPixelSize(R.styleable.SlidingLayout_sl_defaultTouchDistance, 400).toFloat()
+
+        mSlidingTopMaxDistance = typedArray.getDimensionPixelSize(
+            R.styleable.SlidingLayout_sl_top_max,
+            SLIDING_DISTANCE_UNDEFINED
+        )
+        mSlidingBottomMaxDistance = typedArray.getDimensionPixelSize(
+            R.styleable.SlidingLayout_sl_bottom_max,
+            SLIDING_DISTANCE_UNDEFINED
+        )
+        defaultTouchDistance =
+            typedArray.getDimensionPixelSize(R.styleable.SlidingLayout_sl_defaultTouchDistance, 400)
+                .toFloat()
         typedArray.recycle()
         if (mTopViewId != 0) {
             val v = View.inflate(context, mTopViewId, null)
@@ -155,7 +163,7 @@ class SlidingLayout : ViewGroup {
             this.removeView(bottomView)
         }
         bottomView = v as OutsideView
-        this.addView(v, 0, LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT))
+        this.addView(v, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
 
     }
 
@@ -259,7 +267,12 @@ class SlidingLayout : ViewGroup {
             val childBVWidth = bottomView!!.measuredWidth
             val childBVHeight = bottomView!!.measuredHeight
             loadStateY = childBVHeight.toFloat()
-            bottomView!!.layout(0, mTargetView!!.measuredHeight, childBVWidth, childBVHeight + mTargetView!!.measuredHeight)
+            bottomView!!.layout(
+                0,
+                mTargetView!!.measuredHeight,
+                childBVWidth,
+                childBVHeight + mTargetView!!.measuredHeight
+            )
         }
         if (mTargetView != null) {
             val childTVWidth = mTargetView!!.measuredWidth
@@ -299,14 +312,13 @@ class SlidingLayout : ViewGroup {
     fun getInstrument(): Instrument {
         return Instrument.getInstance()
     }
-    private val TAG ="SlidingLayout"
+
+    private val TAG = "SlidingLayout"
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        //   ensureTarget();
-        //        Log.i(TAG, "onInterceptTouchEvent: "+action);
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                Log.i(TAG,"SlidingLayout_onInterceptTouchEvent:按下 ${ev.y}  ")
+                Log.i(TAG, "SlidingLayout_onInterceptTouchEvent:按下 ${ev.y}  ")
                 mActivePointerId = ev.getPointerId(0)
                 mIsBeingDragged = false
                 val initialDownY = getMotionEventY(ev, mActivePointerId)
@@ -317,7 +329,7 @@ class SlidingLayout : ViewGroup {
                 mInitialDownY = initialDownY
             }
             MotionEvent.ACTION_MOVE -> {
-                  Log.i(TAG,"SlidingLayout_onInterceptTouchEvent: 滑动 $${ev.y}  ")
+                Log.i(TAG, "SlidingLayout_onInterceptTouchEvent: 滑动 $${ev.y}  ")
                 if (mActivePointerId == INVALID_POINTER) {
                     return false
                 }
@@ -377,27 +389,35 @@ class SlidingLayout : ViewGroup {
     private fun canChildScrollDown(): Boolean {
         return mTargetView!!.canScrollVertically(1)
     }
-    private fun isCanSliding(locationY: Float):Boolean{
+
+    private fun isCanSliding(locationY: Float): Boolean {
 
         if (locationY > mInitialDownY) {
             //判断是否是下滑刷新
-            val yDiff = locationY- mInitialDownY
-            if (yDiff > mTouchSlop  ) {
+            val yDiff = locationY - mInitialDownY
+            Log.i(TAG, "SlidingLayout_isCanSliding: $locationY $mInitialDownY $mTouchSlop $yDiff  ")
+            if (yDiff > mTouchSlop) {
                 mInitialMotionY = mInitialDownY + mTouchSlop
                 mLastMotionY = mInitialMotionY
-                return  true
+
+                Log.i(TAG, "SlidingLayout_isCanSliding: $mLastMotionY  ")
+                return true
             }
-        } else if (locationY< mInitialDownY) {
+        } else if (locationY < mInitialDownY) {
+
             //判断是否是上拉加载
             val yDiff = mInitialDownY - locationY
-            if (yDiff > mTouchSlop ) {
+            Log.i(TAG, "SlidingLayout_isCanSliding: $locationY $mInitialDownY $mTouchSlop $yDiff  ")
+            if (yDiff > mTouchSlop) {
                 mInitialMotionY = mInitialDownY - mTouchSlop
                 mLastMotionY = mInitialMotionY
+                Log.i(TAG, "SlidingLayout_isCanSliding: $mLastMotionY  ")
                 return true
             }
         }
         return false
     }
+
     private var oneselfDown = false
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (mDelegateTouchListener != null && mDelegateTouchListener!!.onTouch(this, event)) {
@@ -405,57 +425,51 @@ class SlidingLayout : ViewGroup {
         }
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                oneselfDown =true
+                Log.i(TAG, "SlidingLayout_onTouchEvent: $  ACTION_DOWN")
+                oneselfDown = true
             }
             MotionEvent.ACTION_MOVE -> {
-                var delta: Float
-                val move :Float
-                  Log.i(TAG,"SlidingLayout_onTouchEvent: 滑动  ${event.y}  ${event.pointerCount} ")
-                for (i in 0 until  event.pointerCount){
-                      Log.i(TAG,"SlidingLayout_onTouchEvent: ${event.getPointerId(i)}  ${getMotionEventY(event,event.getPointerId(i))}")
-                }
-                  event.getY()
-            //    if (mSlidingPointerMode == SLIDING_POINTER_MODE_MORE) {
+                Log.i(TAG, "SlidingLayout_onTouchEvent: $ ACTION_MOVE ")
+                val activePointerId = event.getPointerId(event.pointerCount - 1)
 
-                    val activePointerId = event.getPointerId(event.pointerCount - 1)
-                    //双手指 矫正偏差
-                    if (mActivePointerId != activePointerId) {
-                        mActivePointerId = activePointerId
-                        mInitialDownY = getMotionEventY(event, mActivePointerId)
-                        mInitialMotionY = mInitialDownY + mTouchSlop
-                        mLastMotionY = mInitialMotionY
-                        if (mSlidingListener != null) {
-                            mSlidingListener!!.onSlidingChangePointer(mTargetView!!, activePointerId)
-                        }
-                          Log.e(TAG,"SlidingLayout_onTouchEvent: $ 多 ")
-                    }else{
-                       if (oneselfDown){
-                            if (!isCanSliding(event.y)){
-                                return true
-                            }else{
-                                oneselfDown =false
-                            }
-                        }
+                   for (i in 0 until  event.pointerCount){
+                         Log.i(TAG,"SlidingLayout_onTouchEvent: ${event.getPointerId(i)} ${getMotionEventY(event, event.getPointerId(i))} ")
+                   }
+                  Log.i(TAG,"SlidingLayout_onTouchEvent: ${event.pointerCount}  $mActivePointerId  " +
+                          " $activePointerId " +
+                          "  ${event.y}   ${getMotionEventY(event, mActivePointerId)}  ${getMotionEventY(event, activePointerId)}")
+                if (oneselfDown) {
+                    if (!isCanSliding(event.y)) {
+                        return true
+                    } else {
+                        oneselfDown = false
                     }
-                    delta = getMotionEventY(event, mActivePointerId) - mLastMotionY
-                    val tempOffset = 1 - (Math.abs(getInstrument().getTransLationY(mTargetView) + delta) / mTargetView!!.measuredHeight)
-                    delta = getInstrument().getTransLationY(mTargetView) + delta * mSlidingOffset * tempOffset
-                    mLastMotionY = getMotionEventY(event, mActivePointerId)
-                    move = getMotionEventY(event, mActivePointerId) - mInitialMotionY
-//                } else {
-//                    if (oneselfDown){
-//                        if (!isCanSliding(event.y)){
-//                            return true
-//                        }else{
-//                            oneselfDown =false
-//                        }
-//                    }
-//                    //随着滑动tempOffset 越来越小
-//                    val tempOffset = 1 - Math.abs(getInstrument().getTransLationY(mTargetView) / mTargetView!!.measuredHeight)
-//                    delta = (event.y - mInitialMotionY) * mSlidingOffset * tempOffset
-//                    move = event.y - mInitialMotionY
-//                }
+                }
+
+
+                //双手指 矫正偏差
+                if (mActivePointerId != activePointerId) {
+                    mActivePointerId = activePointerId
+                    mInitialDownY = getMotionEventY(event, mActivePointerId)
+                    mInitialMotionY = mInitialDownY + mTouchSlop
+                    mLastMotionY = mInitialMotionY
+                    if (mSlidingListener != null) {
+                        mSlidingListener!!.onSlidingChangePointer(mTargetView!!, activePointerId)
+                    }
+                    Log.e(TAG, "SlidingLayout_onTouchEvent: $ 多   $mInitialDownY $mInitialMotionY ")
+                }
+
+                var delta: Float = getMotionEventY(event, mActivePointerId) - mLastMotionY
+                Log.i(TAG, "SlidingLayout_onTouchEvent: $delta    ")
+                val tempOffset =
+                    1 - (Math.abs(getInstrument().getTransLationY(mTargetView) + delta) / mTargetView!!.measuredHeight)
+                delta =
+                    getInstrument().getTransLationY(mTargetView) + delta * mSlidingOffset * tempOffset
+                mLastMotionY = getMotionEventY(event, mActivePointerId)
+                val move: Float = getMotionEventY(event, mActivePointerId) - mInitialMotionY
+                Log.i(TAG, "SlidingLayout_onTouchEvent: $tempOffset $delta $move  ")
                 val distance = getSlidingDistance()
+                  Log.e(TAG,"SlidingLayout_onTouchEvent: $distance $move $delta  ")
                 when (mSlidingMode) {
                     SLIDING_MODE_BOTH -> if (move >= 0) {
                         slidingTOBottom(move, distance, delta)
@@ -470,8 +484,8 @@ class SlidingLayout : ViewGroup {
                     mSlidingListener!!.onSlidingOffset(this, delta)
                 }
             }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->{
-                  Log.i(TAG,"SlidingLayout_onTouchEvent: ${event.action} ACTION_UP ")
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                Log.i(TAG, "SlidingLayout_onTouchEvent: ${event.action} ACTION_UP ")
                 if (getSlidingDistance() >= 0) {
                     if (getSlidingDistance() >= refreshStateY) {
                         if (topView != null) {
@@ -486,7 +500,11 @@ class SlidingLayout : ViewGroup {
                                     actionListener!!.onRefresh()
                                 }
                             }
-                            getInstrument().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
+                            getInstrument().reset(
+                                mTargetView,
+                                RESET_DURATION.toLong(),
+                                animaListener
+                            )
                             getInstrument().reset(topView, RESET_DURATION.toLong(), animaListener)
                         }
 
@@ -509,8 +527,16 @@ class SlidingLayout : ViewGroup {
                                     actionListener!!.onLoad()
                                 }
                             }
-                            getInstrument().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
-                            getInstrument().reset(bottomView, RESET_DURATION.toLong(), animaListener)
+                            getInstrument().reset(
+                                mTargetView,
+                                RESET_DURATION.toLong(),
+                                animaListener
+                            )
+                            getInstrument().reset(
+                                bottomView,
+                                RESET_DURATION.toLong(),
+                                animaListener
+                            )
                         }
 
                     } else {
@@ -604,15 +630,18 @@ class SlidingLayout : ViewGroup {
             VIEW_TOP -> if (topView != null) {
                 topView!!.finish()
                 delayTack(Runnable {
-                    Instrument.getInstance().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
+                    Instrument.getInstance()
+                        .reset(mTargetView, RESET_DURATION.toLong(), animaListener)
                     Instrument.getInstance().reset(topView, RESET_DURATION.toLong(), animaListener)
                 })
             }
             VIEW_BOTTOM -> if (bottomView != null) {
                 bottomView!!.finish()
                 delayTack(Runnable {
-                    Instrument.getInstance().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
-                    Instrument.getInstance().reset(bottomView, RESET_DURATION.toLong(), animaListener)
+                    Instrument.getInstance()
+                        .reset(mTargetView, RESET_DURATION.toLong(), animaListener)
+                    Instrument.getInstance()
+                        .reset(bottomView, RESET_DURATION.toLong(), animaListener)
                 })
             }
         }

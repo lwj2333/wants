@@ -19,10 +19,7 @@
             <enum name="top" value="1" />
             <enum name="bottom" value="2" />
         </attr>
-        <attr name="sl_pointer_mode" format="enum">
-            <enum name="one" value="0" />
-            <enum name="more" value="1" />
-        </attr>
+
         <attr name="sl_top_max" format="dimension" />
         <attr name="sl_defaultTouchDistance" format="dimension" />
         <attr name="sl_bottom_max" format="dimension" />
