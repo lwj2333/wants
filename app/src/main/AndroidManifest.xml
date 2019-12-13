@@ -10,11 +10,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity android:name=".dialog.DialogActivity" />
         <activity android:name=".tab.TabActivity" >
@@ -31,6 +27,13 @@
         </activity>
         <activity android:name=".recyclerview.EventTestActivity" >
 
+        </activity>
+        <activity android:name=".recyclerview.widgets.AnimationSlidingActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

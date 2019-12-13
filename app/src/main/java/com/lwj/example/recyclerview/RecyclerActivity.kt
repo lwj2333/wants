@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import com.lwj.example.BaseActivity
 import com.lwj.example.R
+import com.lwj.example.recyclerview.widgets.AnimationSlidingActivity
 import kotlinx.android.synthetic.main.activity_recycler.*
 
 class RecyclerActivity : BaseActivity(), View.OnClickListener {
@@ -18,6 +19,9 @@ class RecyclerActivity : BaseActivity(), View.OnClickListener {
             R.id.bt_sliding->{
                 jumpActivity(SlidingActivity::class.java)
             }
+            R.id.bt_anim->{
+                jumpActivity(AnimationSlidingActivity::class.java)
+            }
         }
     }
 
@@ -27,6 +31,7 @@ class RecyclerActivity : BaseActivity(), View.OnClickListener {
         bt_more.setOnClickListener(this)
         bt_simple.setOnClickListener(this)
         bt_sliding.setOnClickListener(this)
+        bt_anim.setOnClickListener(this)
     }
 
 

@@ -11,6 +11,7 @@ import android.view.View;
  */
 public class Instrument {
     private static Instrument instrument;
+
     public static Instrument getInstance() {
         if (instrument == null) {
             synchronized (Instrument.class) {
@@ -33,6 +34,7 @@ public class Instrument {
 
         return v.getTranslationY();
     }
+
     public float getTransLationX(View v) {
         if (v == null) {
             return 0;
@@ -40,6 +42,7 @@ public class Instrument {
 
         return v.getTranslationX();
     }
+
     public void slidingByDeltaToY(View v, float delta) {
         if (v == null) {
             return;
@@ -64,15 +67,19 @@ public class Instrument {
         v.setY(y);
     }
 
+    public void reset(View v, long duration) {
+        reset(v, duration, null);
+    }
+
     public void reset(View v, long duration, Animator.AnimatorListener listener) {
         if (v == null) {
             return;
         }
         v.clearAnimation();
-        ObjectAnimator animator  =  ObjectAnimator.ofFloat(v, "translationY", 0F);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(v, "translationY", 0F);
         animator.setDuration(duration);
-        if (listener!=null){
-        animator.addListener(listener);
+        if (listener != null) {
+            animator.addListener(listener);
         }
         animator.start();
     }

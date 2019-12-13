@@ -3,7 +3,6 @@ package com.lwj.wants.recyclerview
 import android.animation.Animator
 import android.app.Activity
 import android.content.Context
-import android.support.v4.app.FrameMetricsAggregator.DELAY_DURATION
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import android.util.AttributeSet
 import android.util.Log
@@ -12,18 +11,19 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import com.lwj.wants.R
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.RESET_DURATION
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_DISTANCE_UNDEFINED
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTH
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTTOM
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_TOP
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SMOOTH_DURATION
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_IDLE
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_SLIDING
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_DOWN
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_MOVE
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_TOP
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_UP
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.VIEW_BOTTOM
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.VIEW_TOP
 
 import com.lwj.wants.recyclerview.util.Instrument
+import com.lwj.wants.util.CountDownTimer
 import java.util.*
 
 
@@ -33,14 +33,10 @@ import java.util.*
  * @describe 添加描述
  * @org  http://www.gdjiuji.com(广东九极生物科技有限公司)
  */
-class SlidingLayout : ViewGroup {
+open class SlidingLayout : ViewGroup {
 
     object SlidingLayout {
-        val RESET_DURATION = 200//自动回弹持续时间
-        val SMOOTH_DURATION = 200//移动持续时间
-        val DELAY_DURATION = 200//延迟持续时间
         val SLIDING_MODE_BOTH = 0//下拉和上滑
-
         /**
          * 下拉
          */
@@ -50,17 +46,21 @@ class SlidingLayout : ViewGroup {
          */
         val SLIDING_MODE_BOTTOM = 2
 
+        val STATE_MOVE = 2//滑动
+        val STATE_UP = 1//抬起
+        val STATE_TOP = 3//刷新完成
+        val STATE_DOWN = 4//加载完成
 
-        private val INVALID_POINTER = -1
-
-        val STATE_SLIDING = 2//滑动
-        val STATE_IDLE = 1//停止
 
         val VIEW_TOP = 0
         val VIEW_BOTTOM = 1
-
         val SLIDING_DISTANCE_UNDEFINED = -1
     }
+
+
+    private var resetDuration = 300//自动回弹持续时间
+    private var smoothDuration = 300//移动持续时间
+    private var delayDuration = 1000//延迟持续时间
 
     private var mTouchSlop: Int = 0//系统允许最小的滑动判断值
     private var mBackgroundViewLayoutId = 0
@@ -69,15 +69,15 @@ class SlidingLayout : ViewGroup {
 
     private var mBackgroundView: View? = null//背景View
     private var mTargetView: View? = null//前景View
-    private var topView: OutsideView? = null//顶部View
-    private var bottomView: OutsideView? = null//底部View
+    private var topView: View? = null//顶部View
+    private var bottomView: View? = null//底部View
 
     private var mIsBeingDragged: Boolean = false//是否拦截事件
     private var mInitialDownY: Float = 0f //初始 按下的 Y位置
     private var mInitialMotionY: Float = 0f// 启动滑动时的Y位置
     private var mLastMotionY: Float = 0f//最后 按下的 Y位置
-    private var refreshStateY = 0f//刷新状态值
-    private var loadStateY = 0f//加载状态值
+    var refreshStateY = 0f//刷新状态值
+    var loadStateY = 0f//加载状态值
     private var defaultTouchDistance: Float = 0f//默认刷新值 当没有顶部View 或者 底部View
 
     private var mActivePointerId = INVALID_POINTER
@@ -88,8 +88,8 @@ class SlidingLayout : ViewGroup {
 
 
     private var mSlidingListener: SlidingListener? = null
-    private var animaListener: Animator.AnimatorListener? = null
-    private var actionListener: ActionListener? = null
+    private var animListener: Animator.AnimatorListener? = null
+
 
     private var mSlidingTopMaxDistance = SLIDING_DISTANCE_UNDEFINED
     private var mSlidingBottomMaxDistance = SLIDING_DISTANCE_UNDEFINED
@@ -102,6 +102,7 @@ class SlidingLayout : ViewGroup {
         init(context!!, attrs)
     }
 
+    open fun initView() {}
     private fun init(context: Context, attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SlidingLayout)
         mBackgroundViewLayoutId = typedArray.getResourceId(
@@ -139,6 +140,7 @@ class SlidingLayout : ViewGroup {
         }
 
         mTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
+        initView()
     }
 
     fun setBackgroundView(v: View) {
@@ -154,7 +156,7 @@ class SlidingLayout : ViewGroup {
         if (topView != null) {
             this.removeView(topView)
         }
-        topView = v as OutsideView
+        topView = v
         this.addView(v, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
     }
 
@@ -162,7 +164,7 @@ class SlidingLayout : ViewGroup {
         if (bottomView != null) {
             this.removeView(bottomView)
         }
-        bottomView = v as OutsideView
+        bottomView = v
         this.addView(v, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
 
     }
@@ -186,11 +188,11 @@ class SlidingLayout : ViewGroup {
         return mSlidingTopMaxDistance
     }
 
-    fun getmSlidingBottomMaxDistance(): Int {
+    fun getSlidingBottomMaxDistance(): Int {
         return mSlidingBottomMaxDistance
     }
 
-    fun setmSlidingBottomMaxDistance(mSlidingBottomMaxDistance: Int) {
+    fun setSlidingBottomMaxDistance(mSlidingBottomMaxDistance: Int) {
         this.mSlidingBottomMaxDistance = mSlidingBottomMaxDistance
     }
 
@@ -210,13 +212,13 @@ class SlidingLayout : ViewGroup {
      */
     fun setSlidingListener(listener: SlidingListener) {
         this.mSlidingListener = listener
-        animaListener = object : Animator.AnimatorListener {
+        animListener = object : Animator.AnimatorListener {
             override fun onAnimationStart(animation: Animator) {
 
             }
 
             override fun onAnimationEnd(animation: Animator) {
-                mSlidingListener!!.onSlidingStateChange(this@SlidingLayout, STATE_IDLE)
+
             }
 
             override fun onAnimationCancel(animation: Animator) {
@@ -229,8 +231,11 @@ class SlidingLayout : ViewGroup {
         }
     }
 
-    fun setActionListener(listener: ActionListener) {
-        this.actionListener = listener
+    /**
+     * @param listener 获取滑动监听
+     */
+    fun getSlidingListener(): SlidingListener? {
+        return mSlidingListener
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -288,6 +293,18 @@ class SlidingLayout : ViewGroup {
 
     }
 
+    fun setResetDuration(time: Int) {
+        resetDuration = time
+    }
+
+    fun setSmoothDuration(time: Int) {
+        smoothDuration = time
+    }
+
+    fun setDelayDuration(time: Int) {
+        delayDuration = time
+    }
+
     fun setTargetView(v: View) {
         if (mTargetView != null) {
             this.removeView(mTargetView)
@@ -296,7 +313,7 @@ class SlidingLayout : ViewGroup {
         this.addView(v)
     }
 
-    override fun setOnTouchListener(l: View.OnTouchListener) {
+    override fun setOnTouchListener(l: OnTouchListener) {
         // super.setOnTouchListener(l);
         mDelegateTouchListener = l
     }
@@ -423,7 +440,7 @@ class SlidingLayout : ViewGroup {
                 oneselfDown = true
             }
             MotionEvent.ACTION_MOVE -> {
-             //   Log.i(TAG, "SlidingLayout_onTouchEvent: ${event.y} ACTION_MOVE ")
+                //   Log.i(TAG, "SlidingLayout_onTouchEvent: ${event.y} ACTION_MOVE ")
                 val activePointerId = event.getPointerId(0)
                 if (oneselfDown) {
                     if (!isCanSliding(event.y)) {
@@ -432,7 +449,7 @@ class SlidingLayout : ViewGroup {
                         oneselfDown = false
                     }
                 }
-                var delta: Float = 0f
+                var delta = 0f
                 //双手指 矫正偏差
                 if (mActivePointerId != activePointerId) {
                     mActivePointerId = activePointerId
@@ -443,13 +460,13 @@ class SlidingLayout : ViewGroup {
                     if (mSlidingListener != null) {
                         mSlidingListener!!.onSlidingChangePointer(mTargetView!!, activePointerId)
                     }
-                   // Log.e(TAG, "SlidingLayout_onTouchEvent: $ 多   $mInitialDownY $mInitialMotionY ")
-                 return true
-                }else{
+                    // Log.e(TAG, "SlidingLayout_onTouchEvent: $ 多   $mInitialDownY $mInitialMotionY ")
+                    return true
+                } else {
                     //计算速度
                     delta = getMotionEventY(event, mActivePointerId) - mLastMotionY
                 }
-               // Log.e(TAG, "SlidingLayout_onTouchEvent:偏差 $delta    ")
+                // Log.e(TAG, "SlidingLayout_onTouchEvent:偏差 $delta    ")
                 val tempOffset =
                     1 - (Math.abs(getInstrument().getTransLationY(mTargetView) + delta) / mTargetView!!.measuredHeight)
                 delta =
@@ -458,9 +475,9 @@ class SlidingLayout : ViewGroup {
                 mLastMotionY = getMotionEventY(event, mActivePointerId)
                 val move: Float = getMotionEventY(event, mActivePointerId) - mInitialMotionY
 
-             //   Log.i(TAG, "SlidingLayout_onTouchEvent: $tempOffset $delta $move  ")
+                //   Log.i(TAG, "SlidingLayout_onTouchEvent: $tempOffset $delta $move  ")
                 val distance = getSlidingDistance()
-            //    Log.e(TAG,"SlidingLayout_onTouchEvent: $distance $move $delta  ")
+                //    Log.e(TAG,"SlidingLayout_onTouchEvent: $distance $move $delta  ")
                 when (mSlidingMode) {
                     SLIDING_MODE_BOTH -> if (move >= 0) {
                         slidingTOBottom(move, distance, delta)
@@ -471,75 +488,62 @@ class SlidingLayout : ViewGroup {
                     SLIDING_MODE_BOTTOM -> slidingToTop(move, distance, delta)
                 }
                 if (mSlidingListener != null) {
-                    mSlidingListener!!.onSlidingStateChange(this, STATE_SLIDING)
+                    mSlidingListener!!.onSlidingStateChange(this, STATE_MOVE)
                     mSlidingListener!!.onSlidingOffset(this, delta)
                 }
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (getSlidingDistance() >= 0) {
-                    if (getSlidingDistance() >= refreshStateY) {
-                        if (topView != null) {
-                            topView!!.run()
-                            smoothScrollTo(VIEW_TOP, refreshStateY)
-                            if (actionListener != null) {
-                                actionListener!!.onRefresh()
-                            }
-                        } else {
-                            if (getSlidingDistance() >= defaultTouchDistance) {
-                                if (actionListener != null) {
-                                    actionListener!!.onRefresh()
-                                }
-                            }
-                            getInstrument().reset(
-                                mTargetView,
-                                RESET_DURATION.toLong(),
-                                animaListener
-                            )
-                            getInstrument().reset(topView, RESET_DURATION.toLong(), animaListener)
-                        }
+                if (mSlidingListener != null) {
+                    mSlidingListener!!.onSlidingStateChange(this, STATE_UP)
+                }
+                slidingToReset()
+            }
+        }
+        return true
+    }
 
+    fun slidingToReset() {
+        when {
+            getSlidingDistance() > 0 -> {
+                getInstrument().reset(mTargetView, resetDuration.toLong())
+                getInstrument().reset(topView, resetDuration.toLong())
+            }
+            getSlidingDistance() < 0 -> {
+                getInstrument().reset(mTargetView, resetDuration.toLong())
+                getInstrument().reset(bottomView, resetDuration.toLong())
+            }
+            else -> {
+            }
+        }
+    }
+
+    fun slidingToRefresh() {
+        when {
+            getSlidingDistance() > 0 -> {
+                if (getSlidingDistance() >= refreshStateY) {
+                    if (topView != null) {
+                        smoothScrollTo(VIEW_TOP, refreshStateY)
                     } else {
-                        getInstrument().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
-                        getInstrument().reset(topView, RESET_DURATION.toLong(), animaListener)
+                        slidingToReset()
                     }
                 } else {
-
-                    if (getSlidingDistance() <= -loadStateY) {
-                        if (bottomView != null) {
-                            bottomView!!.run()
-                            smoothScrollTo(VIEW_BOTTOM, -loadStateY)
-                            if (actionListener != null) {
-                                actionListener!!.onLoad()
-                            }
-                        } else {
-                            if (getSlidingDistance() <= -defaultTouchDistance) {
-                                if (actionListener != null) {
-                                    actionListener!!.onLoad()
-                                }
-                            }
-                            getInstrument().reset(
-                                mTargetView,
-                                RESET_DURATION.toLong(),
-                                animaListener
-                            )
-                            getInstrument().reset(
-                                bottomView,
-                                RESET_DURATION.toLong(),
-                                animaListener
-                            )
-                        }
-
-                    } else {
-                        getInstrument().reset(mTargetView, RESET_DURATION.toLong(), animaListener)
-                        getInstrument().reset(bottomView, RESET_DURATION.toLong(), animaListener)
-                    }
-
+                    slidingToReset()
                 }
             }
-
+            getSlidingDistance() < 0 -> {
+                if (getSlidingDistance() <= -loadStateY) {
+                    if (bottomView != null) {
+                        smoothScrollTo(VIEW_BOTTOM, -loadStateY)
+                    } else {
+                        slidingToReset()
+                    }
+                } else {
+                    slidingToReset()
+                }
+            }
+            else -> {
+            }
         }
-
-        return true
     }
 
     private fun slidingTOBottom(move: Float, distance: Float, d: Float) {
@@ -550,15 +554,6 @@ class SlidingLayout : ViewGroup {
                 //如果还往上滑，就让它归零
                 delta = 0f
             }
-            if (topView != null) {
-                if (distance >= refreshStateY) {
-                    topView!!.action()
-                } else {
-                    topView!!.hint()
-                }
-            }
-
-
             if (mSlidingTopMaxDistance == SLIDING_DISTANCE_UNDEFINED || delta < mSlidingTopMaxDistance) {
                 //滑动范围内 没有设置滑动距离
             } else {
@@ -578,13 +573,7 @@ class SlidingLayout : ViewGroup {
                 //如果还往下滑,就让它归零
                 delta = 0f
             }
-            if (bottomView != null) {
-                if (distance <= -loadStateY) {
-                    bottomView!!.action()
-                } else {
-                    bottomView!!.hint()
-                }
-            }
+
             if (mSlidingBottomMaxDistance == SLIDING_DISTANCE_UNDEFINED || delta > -mSlidingBottomMaxDistance) {
                 //滑动范围内 没有设置滑动距离
             } else {
@@ -606,10 +595,10 @@ class SlidingLayout : ViewGroup {
 
     fun smoothScrollTo(id: Int, y: Float) {
         when (id) {
-            VIEW_TOP -> getInstrument().smoothToY(topView, y, SMOOTH_DURATION.toLong())
-            VIEW_BOTTOM -> getInstrument().smoothToY(bottomView, y, SMOOTH_DURATION.toLong())
+            VIEW_TOP -> getInstrument().smoothToY(topView, y, smoothDuration.toLong())
+            VIEW_BOTTOM -> getInstrument().smoothToY(bottomView, y, smoothDuration.toLong())
         }
-        getInstrument().smoothToY(mTargetView, y, SMOOTH_DURATION.toLong())
+        getInstrument().smoothToY(mTargetView, y, smoothDuration.toLong())
 
     }
 
@@ -620,20 +609,20 @@ class SlidingLayout : ViewGroup {
 
         when (id) {
             VIEW_TOP -> if (topView != null) {
-                topView!!.finish()
+                mSlidingListener?.onSlidingStateChange(this, STATE_TOP)
                 delayTack(Runnable {
                     Instrument.getInstance()
-                        .reset(mTargetView, RESET_DURATION.toLong(), animaListener)
-                    Instrument.getInstance().reset(topView, RESET_DURATION.toLong(), animaListener)
+                        .reset(mTargetView, resetDuration.toLong(), animListener)
+                    Instrument.getInstance().reset(topView, resetDuration.toLong(), animListener)
                 })
             }
             VIEW_BOTTOM -> if (bottomView != null) {
-                bottomView!!.finish()
+                mSlidingListener?.onSlidingStateChange(this, STATE_DOWN)
                 delayTack(Runnable {
                     Instrument.getInstance()
-                        .reset(mTargetView, RESET_DURATION.toLong(), animaListener)
+                        .reset(mTargetView, resetDuration.toLong(), animListener)
                     Instrument.getInstance()
-                        .reset(bottomView, RESET_DURATION.toLong(), animaListener)
+                        .reset(bottomView, resetDuration.toLong(), animListener)
                 })
             }
         }
@@ -648,7 +637,7 @@ class SlidingLayout : ViewGroup {
             }
         }
         if (timer != null) {
-            timer!!.schedule(task, DELAY_DURATION.toLong())
+            timer!!.schedule(task, delayDuration.toLong())
         }
     }
 
@@ -662,7 +651,6 @@ class SlidingLayout : ViewGroup {
         mBackgroundView = null
         topView = null
         mSlidingListener = null
-        actionListener = null
         timer = null
     }
 
@@ -672,17 +660,18 @@ class SlidingLayout : ViewGroup {
 
 
     interface SlidingListener {
+        /**
+         * @param delta 滑动距离
+         */
         fun onSlidingOffset(v: View, delta: Float)
 
+        /**
+         * @param state 滑动状态
+         */
         fun onSlidingStateChange(v: View, state: Int)
 
         fun onSlidingChangePointer(v: View, pointerId: Int)
     }
 
-    interface ActionListener {
-        fun onLoad()
-
-        fun onRefresh()
-    }
 
 }
