@@ -1,11 +1,10 @@
 package com.lwj.wants.recyclerview
 
-import android.animation.Animator
 import android.app.Activity
 import android.content.Context
 import android.support.v4.widget.ViewDragHelper.INVALID_POINTER
 import android.util.AttributeSet
-import android.util.Log
+
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -15,15 +14,14 @@ import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_DISTANCE_U
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTH
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_BOTTOM
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.SLIDING_MODE_TOP
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_DOWN
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_FINISH_DOWN
+import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_FINISH_TOP
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_MOVE
-import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_TOP
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.STATE_UP
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.VIEW_BOTTOM
 import com.lwj.wants.recyclerview.SlidingLayout.SlidingLayout.VIEW_TOP
 
 import com.lwj.wants.recyclerview.util.Instrument
-import com.lwj.wants.util.CountDownTimer
 import java.util.*
 
 
@@ -48,8 +46,8 @@ open class SlidingLayout : ViewGroup {
 
         val STATE_MOVE = 2//滑动
         val STATE_UP = 1//抬起
-        val STATE_TOP = 3//刷新完成
-        val STATE_DOWN = 4//加载完成
+        val STATE_FINISH_TOP = 3//刷新完成
+        val STATE_FINISH_DOWN = 4//加载完成
 
 
         val VIEW_TOP = 0
@@ -57,9 +55,12 @@ open class SlidingLayout : ViewGroup {
         val SLIDING_DISTANCE_UNDEFINED = -1
     }
 
+    private var refreshStats: Stats = Stats.DEFAULT
+    private var loadStats: Stats = Stats.DEFAULT
 
-    private var resetDuration = 300//自动回弹持续时间
-    private var smoothDuration = 300//移动持续时间
+
+    private var resetDuration = 200//自动回弹持续时间
+    private var smoothDuration = 200//移动持续时间
     private var delayDuration = 1000//延迟持续时间
 
     private var mTouchSlop: Int = 0//系统允许最小的滑动判断值
@@ -88,7 +89,6 @@ open class SlidingLayout : ViewGroup {
 
 
     private var mSlidingListener: SlidingListener? = null
-    private var animListener: Animator.AnimatorListener? = null
 
 
     private var mSlidingTopMaxDistance = SLIDING_DISTANCE_UNDEFINED
@@ -169,12 +169,32 @@ open class SlidingLayout : ViewGroup {
 
     }
 
+    protected fun setRefreshStats(state: Stats) {
+        this.refreshStats = state
+    }
+
+    fun getRefreshStats(): Stats {
+        return refreshStats
+    }
+
+    protected fun setLoadStats(state: Stats) {
+        this.loadStats = state
+    }
+
+    fun getLoadStats(): Stats {
+        return loadStats
+    }
+
     fun getBackgroundView(): View? {
         return mBackgroundView
     }
 
     fun getTopView(): View? {
         return topView
+    }
+
+    fun getBottomView(): View? {
+        return bottomView
     }
 
     /**
@@ -212,23 +232,6 @@ open class SlidingLayout : ViewGroup {
      */
     fun setSlidingListener(listener: SlidingListener) {
         this.mSlidingListener = listener
-        animListener = object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator) {
-
-            }
-
-            override fun onAnimationEnd(animation: Animator) {
-
-            }
-
-            override fun onAnimationCancel(animation: Animator) {
-
-            }
-
-            override fun onAnimationRepeat(animation: Animator) {
-
-            }
-        }
     }
 
     /**
@@ -265,13 +268,17 @@ open class SlidingLayout : ViewGroup {
         if (topView != null) {
             val childTVWidth = topView!!.measuredWidth
             val childTVHeight = topView!!.measuredHeight
-            refreshStateY = childTVHeight.toFloat()
+            if (refreshStateY == 0f) {
+                refreshStateY = childTVHeight.toFloat()
+            }
             topView!!.layout(0, -childTVHeight, childTVWidth, 0)
         }
         if (bottomView != null) {
             val childBVWidth = bottomView!!.measuredWidth
             val childBVHeight = bottomView!!.measuredHeight
-            loadStateY = childBVHeight.toFloat()
+            if (loadStateY == 0f) {
+                loadStateY = childBVHeight.toFloat()
+            }
             bottomView!!.layout(
                 0,
                 mTargetView!!.measuredHeight,
@@ -330,12 +337,10 @@ open class SlidingLayout : ViewGroup {
         return Instrument.getInstance()
     }
 
-    private val TAG = "SlidingLayout"
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
-                Log.i(TAG, "SlidingLayout_onInterceptTouchEvent:按下 ${ev.y}  ")
                 mActivePointerId = ev.getPointerId(0)
                 mIsBeingDragged = false
                 val initialDownY = getMotionEventY(ev, mActivePointerId)
@@ -346,7 +351,6 @@ open class SlidingLayout : ViewGroup {
                 mInitialDownY = initialDownY
             }
             MotionEvent.ACTION_MOVE -> {
-                Log.i(TAG, "SlidingLayout_onInterceptTouchEvent: 滑动 $${ev.y}  ")
                 if (mActivePointerId == INVALID_POINTER) {
                     return false
                 }
@@ -474,17 +478,14 @@ open class SlidingLayout : ViewGroup {
 
                 mLastMotionY = getMotionEventY(event, mActivePointerId)
                 val move: Float = getMotionEventY(event, mActivePointerId) - mInitialMotionY
-
-                //   Log.i(TAG, "SlidingLayout_onTouchEvent: $tempOffset $delta $move  ")
                 val distance = getSlidingDistance()
-                //    Log.e(TAG,"SlidingLayout_onTouchEvent: $distance $move $delta  ")
                 when (mSlidingMode) {
                     SLIDING_MODE_BOTH -> if (move >= 0) {
-                        slidingTOBottom(move, distance, delta)
+                        slidingToBottom(move, distance, delta)
                     } else {
                         slidingToTop(move, distance, delta)
                     }
-                    SLIDING_MODE_TOP -> slidingTOBottom(move, distance, delta)
+                    SLIDING_MODE_TOP -> slidingToBottom(move, distance, delta)
                     SLIDING_MODE_BOTTOM -> slidingToTop(move, distance, delta)
                 }
                 if (mSlidingListener != null) {
@@ -546,42 +547,62 @@ open class SlidingLayout : ViewGroup {
         }
     }
 
-    private fun slidingTOBottom(move: Float, distance: Float, d: Float) {
+    private val TAG = "SlidingLayout"
+    private fun slidingToBottom(move: Float, distance: Float, d: Float) {
+
         var delta = d
-        if (move >= 0 || distance > 0) {
-            //向下滑动
-            if (delta < 0) {
-                //如果还往上滑，就让它归零
-                delta = 0f
+        when {
+            move > 0 -> {
+                //向下滑动
+                if (mSlidingTopMaxDistance == SLIDING_DISTANCE_UNDEFINED || delta < mSlidingTopMaxDistance) {
+                    //滑动范围内 没有设置滑动距离
+                } else {
+                    //超过滑动范围
+                    delta = mSlidingTopMaxDistance.toFloat()
+                }
+                if (distance < 0) {
+
+                    getInstrument().slidingByDeltaToY(bottomView, delta)
+                } else {
+
+                    getInstrument().slidingByDeltaToY(topView, delta)
+                }
+                getInstrument().slidingByDeltaToY(mTargetView, delta)
+
             }
-            if (mSlidingTopMaxDistance == SLIDING_DISTANCE_UNDEFINED || delta < mSlidingTopMaxDistance) {
-                //滑动范围内 没有设置滑动距离
-            } else {
-                //超过滑动范围
-                delta = mSlidingTopMaxDistance.toFloat()
+            mSlidingMode==SLIDING_MODE_TOP && move < 0 && distance > 0 -> {
+                if (delta < 0) {
+                    delta = 0f
+                }
+
+                getInstrument().slidingByDeltaToY(topView, delta)
+                getInstrument().slidingByDeltaToY(mTargetView, delta)
             }
-            getInstrument().slidingByDeltaToY(mTargetView, delta)
-            getInstrument().slidingByDeltaToY(topView, delta)
         }
     }
 
+    /**
+     *   向上滑动
+     */
     private fun slidingToTop(move: Float, distance: Float, d: Float) {
-        var delta = d
-        if (move <= 0 || distance < 0) {
-            //向上滑动
-            if (delta > 0) {
-                //如果还往下滑,就让它归零
-                delta = 0f
-            }
 
+        var delta = d
+        if (move < 0) {
+            //向上滑动
             if (mSlidingBottomMaxDistance == SLIDING_DISTANCE_UNDEFINED || delta > -mSlidingBottomMaxDistance) {
-                //滑动范围内 没有设置滑动距离
+                //滑动范围内或 没有设置最大滑动距离
             } else {
                 //超过滑动范围
                 delta = (-mSlidingBottomMaxDistance).toFloat()
             }
+
+            if (getSlidingDistance() > 0) {
+                getInstrument().slidingByDeltaToY(topView, delta)
+            } else {
+                getInstrument().slidingByDeltaToY(bottomView, delta)
+            }
             getInstrument().slidingByDeltaToY(mTargetView, delta)
-            getInstrument().slidingByDeltaToY(bottomView, delta)
+
         }
     }
 
@@ -609,20 +630,20 @@ open class SlidingLayout : ViewGroup {
 
         when (id) {
             VIEW_TOP -> if (topView != null) {
-                mSlidingListener?.onSlidingStateChange(this, STATE_TOP)
+                mSlidingListener?.onSlidingStateChange(this@SlidingLayout, STATE_FINISH_TOP)
                 delayTack(Runnable {
                     Instrument.getInstance()
-                        .reset(mTargetView, resetDuration.toLong(), animListener)
-                    Instrument.getInstance().reset(topView, resetDuration.toLong(), animListener)
+                        .reset(mTargetView, resetDuration.toLong())
+                    Instrument.getInstance().reset(topView, resetDuration.toLong())
                 })
             }
             VIEW_BOTTOM -> if (bottomView != null) {
-                mSlidingListener?.onSlidingStateChange(this, STATE_DOWN)
+                mSlidingListener?.onSlidingStateChange(this@SlidingLayout, STATE_FINISH_DOWN)
                 delayTack(Runnable {
                     Instrument.getInstance()
-                        .reset(mTargetView, resetDuration.toLong(), animListener)
+                        .reset(mTargetView, resetDuration.toLong())
                     Instrument.getInstance()
-                        .reset(bottomView, resetDuration.toLong(), animListener)
+                        .reset(bottomView, resetDuration.toLong())
                 })
             }
         }
@@ -673,5 +694,7 @@ open class SlidingLayout : ViewGroup {
         fun onSlidingChangePointer(v: View, pointerId: Int)
     }
 
-
+    enum class Stats {
+        RUN, COMPLETE, DEFAULT, READY,
+    }
 }

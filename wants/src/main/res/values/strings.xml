@@ -3,6 +3,8 @@
     <string name="todo">TODO</string>
     <string name="cancel_dialog">取消</string>
     <string name="ensure_dialog">去允许</string>
+    <string name="confirm_dialog">确定</string>
+    <string name="hint_dialog">提示</string>
 
 
     <string name="update">最近更新:</string>

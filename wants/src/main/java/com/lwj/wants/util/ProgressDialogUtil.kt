@@ -41,7 +41,7 @@ class ProgressDialogUtil {
             }
             if (pd == null) {
                 pd = ProgressDialog(activity).setMessage(msg).cancelable(cancelable)
-                pd?.setOwnerActivity(activity)
+                pd?.ownerActivity = activity
                 pd?.setOnCancelListener(listener)
             } else {
                 if (activity == pd!!.ownerActivity) {
@@ -51,7 +51,7 @@ class ProgressDialogUtil {
                 } else {
                     cancelProgressDialog()
                     pd = ProgressDialog(activity).setMessage(msg).cancelable(cancelable)
-                    pd?.setOwnerActivity(activity)
+                    pd?.ownerActivity = activity
                     pd?.setOnCancelListener(listener)
                 }
             }

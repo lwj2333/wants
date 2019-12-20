@@ -27,6 +27,7 @@ class HintTwoDialog :Dialog, View.OnClickListener {
         val displayMetrics = context.resources.displayMetrics
         lp?.width = (displayMetrics.widthPixels * 0.7f).toInt()
         window?.attributes = lp
+       window?.setWindowAnimations(R.style.dialog_center_anim)
         initView()
 
     }

@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-       >
+        android:minHeight="100dp">
 
 
     <TextView
@@ -35,7 +35,7 @@
             android:padding="2dp"
             android:textColor="#000000"
             android:textSize="16sp"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
@@ -46,9 +46,10 @@
             android:id="@+id/img_state"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:background="@drawable/ic_action_downward"
 
+            android:background="@drawable/ic_action_downward"
             android:contentDescription="@string/todo"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tv_state"

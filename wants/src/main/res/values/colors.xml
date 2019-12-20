@@ -27,4 +27,8 @@
     <color name="menu_bg_0">#4c4e55</color>
     <color name="menu_bg_1">#1c1c1e</color>
 
+
+    <color name="TextViewGradient_start">#FF7600</color>
+    <color name="TextViewGradient_end">#FF4A00</color>
+
 </resources>

@@ -1,13 +1,12 @@
 package com.lwj.example.recyclerview.widgets
 
 import android.os.Bundle
-
 import android.util.Log
-import android.view.View
+
 import com.lwj.example.BaseActivity
 import com.lwj.example.R
 import com.lwj.wants.recyclerview.SlidingLayout
-import com.lwj.wants.recyclerview.animation.AnimationSlidingLayout
+import com.lwj.wants.recyclerview.example.SimpleSlidingLayout
 import com.lwj.wants.util.CountDownTimer
 import kotlinx.android.synthetic.main.activity_animation_sliding.*
 
@@ -18,21 +17,36 @@ class AnimationSlidingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_animation_sliding)
         setListener()
-       // initAction()
     }
 
     private fun setListener(){
-        anim_sliding.setSlidingResultListener(object :AnimationSlidingLayout.OnSlidingResultListener{
+        anim_sliding.setSlidingResultListener(object :SimpleSlidingLayout.OnSlidingResultListener{
+            override fun onLoad() {
+                initBottom()
+            }
+
             override fun onRefresh() {
-                  Log.i(TAG,"AnimationSlidingActivity_onRefresh: $  刷新")
-                initAction()
+                  Log.i(TAG,"AnimationSlidingActivity_onRefresh: $ ahahhahah ")
+                initTop()
             }
         })
     }
+    private fun initBottom() {
+        CountDownTimer(5000, 1000)
+            .setOnCountDownListener(object : CountDownTimer.OnCountDownListener {
+                override fun onTick(remain: Long) {
 
+                }
 
-    private fun initAction() {
-        CountDownTimer(4000, 1000)
+                override fun onFinish() {
+                    anim_sliding.stop(SlidingLayout.SlidingLayout.VIEW_BOTTOM)
+                }
+            }).start()
+
+    }
+
+    private fun initTop() {
+        CountDownTimer(10000, 1000)
             .setOnCountDownListener(object : CountDownTimer.OnCountDownListener {
                 override fun onTick(remain: Long) {
 

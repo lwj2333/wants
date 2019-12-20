@@ -32,4 +32,11 @@
     </declare-styleable>
 
 
+    <declare-styleable name="TextViewGradient">
+        <attr name="TextViewGradient_round" format="dimension"/>
+        <attr name="TextViewGradient_colorStart" format="color" />
+        <attr name="TextViewGradient_colorEnd" format="color" />
+    </declare-styleable>
+
+
 </resources>
