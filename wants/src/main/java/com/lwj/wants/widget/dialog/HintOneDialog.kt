@@ -22,19 +22,21 @@ class HintOneDialog : Dialog, View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutID)
+        setContentView(R.layout.dialog_one_hint)
         val lp = window?.attributes
         window?.setGravity(Gravity.CENTER)
         val displayMetrics = context.resources.displayMetrics
         lp?.width = (displayMetrics.widthPixels * 0.7f).toInt()
         window?.attributes = lp
+        //window?.setWindowAnimations(R.style.dialog_center_anim)
         initView()
 
     }
-   private var title:String?=null
+
+    private var title: String? = null
     private var content: String? = null
     private var ensure: String? = null
-    private var layoutID = R.layout.dialog_one_hint
+
     fun setListener(listener: HintOneDialogResultListener): HintOneDialog {
         this.listener = listener
         return this
@@ -66,16 +68,11 @@ class HintOneDialog : Dialog, View.OnClickListener {
         this.content = content
         return this
     }
+
     fun setTitle(title: String): HintOneDialog {
         this.title = title
         return this
     }
-
-    fun setLayout(id: Int): HintOneDialog {
-        this.layoutID = id
-        return this
-    }
-
     fun setEnsure(ensure: String): HintOneDialog {
         this.ensure = ensure
         return this

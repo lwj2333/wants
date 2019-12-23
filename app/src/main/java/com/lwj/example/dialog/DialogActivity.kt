@@ -56,5 +56,4 @@ class DialogActivity : BaseActivity(), View.OnClickListener {
         }
 
     }
-
 }

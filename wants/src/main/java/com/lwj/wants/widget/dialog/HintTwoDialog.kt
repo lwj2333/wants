@@ -14,28 +14,28 @@ import kotlinx.android.synthetic.main.dialog_two_hint.*
  * @date on 2019/10/29
  * @describe 添加描述
  */
-class HintTwoDialog :Dialog, View.OnClickListener {
-    constructor(context: Context) : super(context,R.style.HintDialogTheme)
+class HintTwoDialog : Dialog, View.OnClickListener {
+    constructor(context: Context) : super(context, R.style.HintDialogTheme)
     constructor(context: Context, themeResId: Int) : super(context, themeResId)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutID)
+        setContentView(R.layout.dialog_two_hint)
         val lp = window?.attributes
         window?.setGravity(Gravity.CENTER)
         val displayMetrics = context.resources.displayMetrics
         lp?.width = (displayMetrics.widthPixels * 0.7f).toInt()
         window?.attributes = lp
-       window?.setWindowAnimations(R.style.dialog_center_anim)
+        //window?.setWindowAnimations(R.style.dialog_center_anim)
         initView()
 
     }
 
     private var content: String? = null
-    private var cancel:String? = null
-    private var ensure:String? = null
-    private var layoutID = R.layout.dialog_two_hint
+    private var cancel: String? = null
+    private var ensure: String? = null
+
     fun setListener(listener: HintTwoDialogResultListener): HintTwoDialog {
         this.listener = listener
         return this
@@ -75,10 +75,6 @@ class HintTwoDialog :Dialog, View.OnClickListener {
         return this
     }
 
-    fun setLayout(id: Int): HintTwoDialog {
-        this.layoutID = id
-        return this
-    }
 
     fun setEnsure(ensure: String): HintTwoDialog {
         this.ensure = ensure

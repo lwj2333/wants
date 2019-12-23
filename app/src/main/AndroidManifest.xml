@@ -36,6 +36,8 @@
         <activity android:name=".recyclerview.widgets.AnimationSlidingActivity" >
 
         </activity>
+        <activity android:name=".textview.TextViewActivity" />
+        <activity android:name=".edittext.EditTextActivity" />
     </application>
 
 </manifest>
