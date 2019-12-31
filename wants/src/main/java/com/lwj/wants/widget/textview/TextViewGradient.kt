@@ -33,8 +33,6 @@ class TextViewGradient : TextView {
         mPaint?.style = Paint.Style.FILL
     }
 
-
-
     private var mBackGroundRect: RectF? = null
     private var backGradient: LinearGradient? = null
     private var colorStart = -1
@@ -52,8 +50,6 @@ class TextViewGradient : TextView {
     }
 
     override fun onDraw(canvas: Canvas?) {
-
-
         mPaint?.shader = backGradient
         if (mBackGroundRect != null) {
             canvas?.drawRoundRect(mBackGroundRect!!, round, round, mPaint!!)
