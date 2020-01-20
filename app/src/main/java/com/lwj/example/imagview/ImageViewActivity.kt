@@ -17,6 +17,8 @@ class ImageViewActivity : BaseActivity(), View.OnClickListener {
         button.setOnClickListener(this)
         button2.setOnClickListener(this)
         button3.setOnClickListener(this)
+        button4.setOnClickListener(this)
+        button5.setOnClickListener(this)
     }
 
     private val TAG = "ImageViewActivity"
@@ -24,7 +26,7 @@ class ImageViewActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.button -> {
-                img_rotate.startAutoRotate(3000)
+                img_rotate.startViewAutoRotate(1000,true)
             }
             R.id.button2 -> {
                 progress = NumberUtils.add(progress, 0.1).toDouble()
@@ -34,7 +36,13 @@ class ImageViewActivity : BaseActivity(), View.OnClickListener {
                 img_rotate.setProgressRotate(progress.toFloat())
             }
             R.id.button3->{
-                img_rotate.clearAnimation()
+                img_rotate.endAnimator()
+            }
+            R.id.button4->{
+                img_rotate.cancel()
+            }
+            R.id.button5->{
+                img_rotate.reverse()
             }
         }
     }
