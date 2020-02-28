@@ -39,6 +39,7 @@
         <activity android:name=".textview.TextViewActivity" />
         <activity android:name=".edittext.EditTextActivity" />
         <activity android:name=".imagview.ImageViewActivity" />
+        <activity android:name=".recyclerview.widgets.LetterNavigationActivity" />
     </application>
 
 </manifest>
