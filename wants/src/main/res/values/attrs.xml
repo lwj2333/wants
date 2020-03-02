@@ -61,6 +61,7 @@
         <attr name="android:textSize"/>
         <attr name="android:textColor"/>
         <attr name="content_div" format="dimension"/>
+        <attr name="background_color" format="color" />
     </declare-styleable>
 
 </resources>

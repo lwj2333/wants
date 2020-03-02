@@ -32,7 +32,7 @@ class LetterNavigationView : View {
     private var mRect: Rect? = null
     private val mRectF = RectF()
     private var backgroundPaint: Paint? = null
-
+    private var mBackgroundColor: Int = 0
 
     private fun initAttrs(attrs: AttributeSet?) {
         val typedArray =
@@ -41,16 +41,19 @@ class LetterNavigationView : View {
         mTextSize =
             typedArray.getDimension(
                 R.styleable.LetterNavigationView_android_textSize,
-                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14f, resources.displayMetrics)
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12f, resources.displayMetrics)
             )
         mTextColor = typedArray.getColor(
             R.styleable.LetterNavigationView_android_textColor,
             ContextCompat.getColor(context, R.color.black)
         )
         mContentDiv = typedArray.getDimension(
-            R.styleable.LetterNavigationView_content_div, 0f
+            R.styleable.LetterNavigationView_content_div, 16f
         )
-
+        mBackgroundColor = typedArray.getColor(
+            R.styleable.LetterNavigationView_background_color,
+            ContextCompat.getColor(context, R.color.green)
+        )
         typedArray?.recycle()
     }
 
@@ -86,7 +89,7 @@ class LetterNavigationView : View {
             "Y",
             "Z"
         )
-        arrayContent = arrayOf("日", "田")
+       // arrayContent = arrayOf("日", "田")
         Log.i(TAG, "LetterNavigationView_initData: $mTextSize  $mContentDiv ")
         //文字画笔
         textPaint = Paint()
@@ -98,7 +101,7 @@ class LetterNavigationView : View {
         backgroundPaint = Paint()
         backgroundPaint!!.isAntiAlias = true
         backgroundPaint!!.style = Paint.Style.FILL
-
+        backgroundPaint!!.color = mBackgroundColor
 
     }
 
@@ -119,13 +122,17 @@ class LetterNavigationView : View {
             TAG,
             "LetterNavigationView_onDraw: $height $paddingTop $paddingBottom  $heightShould "
         )
+        //背景圆的半径
+        val radius :Float = heightShould/2
         for (i in 0 until length) {
             //计算Y轴的坐标
             val startY = (i + 1) * heightShould + paddingTop
             Log.i(TAG, "LetterNavigationView_onDraw: $startY  ")
-            if (actionState) {
-                val ds = i * heightShould + paddingTop + mContentDiv +(mRect!!.height()/2)
-                   Log.i(TAG,"LetterNavigationView_onDraw:远点  $ds  ")
+            if (actionState&&i==1) {
+                val ds = i * heightShould + paddingTop + mContentDiv + (mRect!!.height() / 2)
+
+                canvas?.drawCircle(textX, ds, radius, backgroundPaint!!)
+                Log.i(TAG, "LetterNavigationView_onDraw:元  $ds  $heightShould $radius ")
             }
             //绘制文字
             canvas?.drawText(arrayContent!![i], textX, startY, textPaint!!)
