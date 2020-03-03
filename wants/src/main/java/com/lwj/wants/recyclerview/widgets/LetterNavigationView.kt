@@ -28,11 +28,14 @@ class LetterNavigationView : View {
     private var textPaint: Paint? = null
     private var mTextSize: Float = 10f
     private var mTextColor: Int = 0
-    private var mContentDiv: Float = 0f
+    private var mContentDiv: Float = 0f //字母间隔
     private var mRect: Rect? = null
     private val mRectF = RectF()
     private var backgroundPaint: Paint? = null
     private var mBackgroundColor: Int = 0
+
+    private var checkTextPaint: Paint? = null
+   private var checkTextColor:Int =0
 
     private fun initAttrs(attrs: AttributeSet?) {
         val typedArray =
@@ -47,12 +50,17 @@ class LetterNavigationView : View {
             R.styleable.LetterNavigationView_android_textColor,
             ContextCompat.getColor(context, R.color.black)
         )
+        checkTextColor = typedArray.getColor(
+            R.styleable.LetterNavigationView_textColor_checked,
+            ContextCompat.getColor(context, R.color.white)
+        )
         mContentDiv = typedArray.getDimension(
-            R.styleable.LetterNavigationView_content_div, 16f
+            R.styleable.LetterNavigationView_content_div,
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
         )
         mBackgroundColor = typedArray.getColor(
             R.styleable.LetterNavigationView_background_color,
-            ContextCompat.getColor(context, R.color.green)
+            ContextCompat.getColor(context, R.color.dark_green)
         )
         typedArray?.recycle()
     }
@@ -61,7 +69,6 @@ class LetterNavigationView : View {
 
     private fun initData() {
         arrayContent = arrayOf(
-            "搜",
             "A",
             "B",
             "C",
@@ -89,7 +96,8 @@ class LetterNavigationView : View {
             "Y",
             "Z"
         )
-       // arrayContent = arrayOf("日", "田")
+        // arrayContent = arrayOf("a", "b","c")
+        length = getContentLength()
         Log.i(TAG, "LetterNavigationView_initData: $mTextSize  $mContentDiv ")
         //文字画笔
         textPaint = Paint()
@@ -102,40 +110,36 @@ class LetterNavigationView : View {
         backgroundPaint!!.isAntiAlias = true
         backgroundPaint!!.style = Paint.Style.FILL
         backgroundPaint!!.color = mBackgroundColor
-
+        //选中文字画笔
+        checkTextPaint = Paint()
+        checkTextPaint!!.isAntiAlias = true
+        checkTextPaint!!.textSize = mTextSize
+        checkTextPaint!!.textAlign = Paint.Align.CENTER
+        checkTextPaint!!.color = checkTextColor
     }
 
-    private var actionState = true
+    private var actionState = false
+    private var interval: Float = 0f // 每个字母实际的间隔
+    private var heightShould: Float = 0f //一个字母的高度和间隔之和
+    private var textX :Float = 0f //文本中心x轴
+    private var radius: Float=0f //背景圆的半径
     private val TAG = "LetterNavigationView"
     override fun onDraw(canvas: Canvas?) {
 
 
-        //绘制文本
-        val textX: Float = (width / 2).toFloat()
-
-        //X轴坐标
-        val length = getContentLength()
-        //Y轴坐标 （这里在测量的时候多加入了两个间隔高度要减去，同时还有Padding值
-        val heightShould: Float =
-            (height - mContentDiv - paddingTop - paddingBottom) / length
-        Log.i(
-            TAG,
-            "LetterNavigationView_onDraw: $height $paddingTop $paddingBottom  $heightShould "
-        )
-        //背景圆的半径
-        val radius :Float = heightShould/2
         for (i in 0 until length) {
             //计算Y轴的坐标
             val startY = (i + 1) * heightShould + paddingTop
             Log.i(TAG, "LetterNavigationView_onDraw: $startY  ")
-            if (actionState&&i==1) {
-                val ds = i * heightShould + paddingTop + mContentDiv + (mRect!!.height() / 2)
-
-                canvas?.drawCircle(textX, ds, radius, backgroundPaint!!)
-                Log.i(TAG, "LetterNavigationView_onDraw:元  $ds  $heightShould $radius ")
+            if (actionState&&currentIndex>-1&&currentIndex==i) {
+                val textY = (i + 1) * heightShould + paddingTop - (mRect!!.height() / 2)
+                canvas?.drawCircle(textX, textY, radius, backgroundPaint!!)
+                canvas?.drawText(arrayContent!![i], textX, startY, checkTextPaint!!)
+            }else{
+                //绘制文字
+                canvas?.drawText(arrayContent!![i], textX, startY, textPaint!!)
             }
-            //绘制文字
-            canvas?.drawText(arrayContent!![i], textX, startY, textPaint!!)
+
         }
     }
 
@@ -145,7 +149,6 @@ class LetterNavigationView : View {
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 actionState = true
-                invalidate()
                 scrollCount(eventY!!)
             }
             MotionEvent.ACTION_MOVE -> {
@@ -153,11 +156,24 @@ class LetterNavigationView : View {
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 actionState = false
+                currentLetter = null
+                currentIndex = -1
                 invalidate()
 
             }
         }
         return true
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        interval = (h-paddingTop-paddingBottom - length * mRect!!.height()).toFloat() / (length + 1)
+        heightShould = interval+mRect!!.height()
+        textX = (width / 2).toFloat()
+        //背景圆的半径
+        radius = mRect!!.height()-(mContentDiv/2)
+        Log.i(TAG, "LetterNavigationView_onSizeChanged: $interval  $heightShould")
     }
 
     /**
@@ -205,32 +221,27 @@ class LetterNavigationView : View {
             }
         }
         setMeasuredDimension(mWidth, mHeight)
-        Log.i(
-            TAG,
-            "LetterNavigationView_onDraw: $mWidth  $mHeight  $mContentDiv  ${mRect!!.height()}  $contentHeight"
-        )
     }
-
+    private var currentIndex :Int =-1
     private var currentLetter: String? = null
     /**
      * 滑动计算
      */
     private fun scrollCount(eventY: Float) {
-        val mRect = measureTextSize()
-        val index: Int =
-            (((eventY - paddingTop - paddingBottom - mContentDiv * 2) / (mRect.height() + mContentDiv)).toInt())
-        if (index >= 0 && index < getContentLength()) {
-            val letter = arrayContent?.get(index)
+
+        val index: Int = ((eventY - paddingTop) /heightShould).toInt()
+        if (index in 0 until length) {
+            val letter = arrayContent!![index]
             Log.i(TAG, "LetterNavigationView_scrollCount: $letter  ")
             if (!currentLetter.equals(letter)) {
                 currentLetter = letter
-                //TODO 触摸回调
-                Log.i(TAG, "LetterNavigationView_scrollCount: 唯有 $letter  ")
+                currentIndex = index
+                invalidate()
+                mNavigationChangeListener?.onChange(letter,index)
             }
         } else {
             Log.i(TAG, "LetterNavigationView_scrollCount: $ 超出  ")
         }
-
     }
 
     /**
@@ -243,11 +254,23 @@ class LetterNavigationView : View {
         }
         return mRect
     }
-
+    private var length = 0 //字母长度
     fun getContentLength(): Int {
         if (arrayContent != null) {
             return arrayContent!!.size
         }
         return 0
+    }
+    fun setLetterArray(array:Array<String>){
+        arrayContent = array
+        length = getContentLength()
+    }
+    private var mNavigationChangeListener:OnNavigationChangeListener ?=null
+    fun setNavigationChangeListener(listener:OnNavigationChangeListener){
+        mNavigationChangeListener = listener
+    }
+
+    interface  OnNavigationChangeListener{
+        fun onChange(letter:String,position:Int)
     }
 }
