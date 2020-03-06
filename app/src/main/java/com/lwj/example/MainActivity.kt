@@ -4,6 +4,7 @@ package com.lwj.example
 
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import com.lwj.example.dialog.DialogActivity
@@ -14,6 +15,8 @@ import com.lwj.example.spinner.SpinnerActivity
 import com.lwj.example.tab.TabActivity
 import com.lwj.example.textview.TextViewActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class MainActivity : BaseActivity(), View.OnClickListener {
@@ -30,7 +33,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         bt_edittext.setOnClickListener(this)
         bt_imageview.setOnClickListener(this)
     }
-
+private val TAG ="MainActivity"
     override fun onClick(v: View?) {
         when(v?.id){
             R.id.bt_dialog->{

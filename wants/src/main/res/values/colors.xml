@@ -14,6 +14,7 @@
     <color name="green">#00ff00</color>
     <color name="dark_green">#09BB07</color>
 
+
     <color name="beige">#e6d89c</color>
     <color name="red_dark">#bc0b0b</color>
     <color name="grayDark">#878181</color>
@@ -30,8 +31,9 @@
     <color name="menu_bg_0">#4c4e55</color>
     <color name="menu_bg_1">#1c1c1e</color>
 
-
+    <color name="letter_show_background">#CCCCCC</color>
     <color name="TextViewGradient_start">#FF7600</color>
     <color name="TextViewGradient_end">#FF4A00</color>
-
+    <color name="Test1">#99EC4541</color>
+    <color name="Test2">#998EDB2A</color>
 </resources>

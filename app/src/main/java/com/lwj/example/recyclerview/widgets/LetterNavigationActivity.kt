@@ -8,7 +8,7 @@ import com.lwj.wants.recyclerview.widgets.LetterNavigationView
 import kotlinx.android.synthetic.main.activity_letter_navigation.*
 
 class LetterNavigationActivity :BaseActivity(){
-    private val TAG ="LetterNavigation"
+    private val TAG ="LetterNavigationa"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
          setContentView(R.layout.activity_letter_navigation)

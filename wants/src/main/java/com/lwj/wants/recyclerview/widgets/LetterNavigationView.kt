@@ -1,11 +1,9 @@
 package com.lwj.wants.recyclerview.widgets
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.*
 
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
 import android.support.v4.content.ContextCompat
 
 import android.util.AttributeSet
@@ -15,6 +13,10 @@ import android.view.MotionEvent
 
 import android.view.View
 import com.lwj.wants.R
+import com.lwj.wants.util.NumberUtils
+import java.lang.RuntimeException
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class LetterNavigationView : View {
@@ -30,12 +32,15 @@ class LetterNavigationView : View {
     private var mTextColor: Int = 0
     private var mContentDiv: Float = 0f //字母间隔
     private var mRect: Rect? = null
-    private val mRectF = RectF()
+
     private var backgroundPaint: Paint? = null
     private var mBackgroundColor: Int = 0
 
     private var checkTextPaint: Paint? = null
-   private var checkTextColor:Int =0
+    private var checkTextColor: Int = 0
+    private var showBackgroundPaint: Paint? = null
+    private var mShowBackgroundColor: Int = 0
+    private var showTextSize: Float = 0f
 
     private fun initAttrs(attrs: AttributeSet?) {
         val typedArray =
@@ -55,12 +60,24 @@ class LetterNavigationView : View {
             ContextCompat.getColor(context, R.color.white)
         )
         mContentDiv = typedArray.getDimension(
-            R.styleable.LetterNavigationView_content_div,
+            R.styleable.LetterNavigationView_contentPadding,
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
         )
         mBackgroundColor = typedArray.getColor(
             R.styleable.LetterNavigationView_background_color,
             ContextCompat.getColor(context, R.color.dark_green)
+        )
+        mShowBackgroundColor = typedArray.getColor(
+            R.styleable.LetterNavigationView_showBackgroundColor,
+            ContextCompat.getColor(context, R.color.letter_show_background)
+        )
+        showTextSize = typedArray.getDimension(
+            R.styleable.LetterNavigationView_showTextSize,
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 30f, resources.displayMetrics)
+        )
+        showPadding = typedArray.getDimension(
+            R.styleable.LetterNavigationView_showPadding,
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5f, resources.displayMetrics)
         )
         typedArray?.recycle()
     }
@@ -96,9 +113,8 @@ class LetterNavigationView : View {
             "Y",
             "Z"
         )
-        // arrayContent = arrayOf("a", "b","c")
+        //  arrayContent = arrayOf("A")
         length = getContentLength()
-        Log.i(TAG, "LetterNavigationView_initData: $mTextSize  $mContentDiv ")
         //文字画笔
         textPaint = Paint()
         textPaint!!.isAntiAlias = true
@@ -113,29 +129,83 @@ class LetterNavigationView : View {
         //选中文字画笔
         checkTextPaint = Paint()
         checkTextPaint!!.isAntiAlias = true
-        checkTextPaint!!.textSize = mTextSize
+        checkTextPaint!!.textSize = showTextSize
         checkTextPaint!!.textAlign = Paint.Align.CENTER
         checkTextPaint!!.color = checkTextColor
+        //显示背景画笔
+        showBackgroundPaint = Paint()
+        showBackgroundPaint!!.isAntiAlias = true
+        showBackgroundPaint!!.style = Paint.Style.FILL
+        showBackgroundPaint!!.color = mShowBackgroundColor
+
     }
 
-    private var actionState = false
+    private var actionState: Boolean = false    // 是否显示背景圆
+    private var isClick: Boolean = false  //是否单击
     private var interval: Float = 0f // 每个字母实际的间隔
     private var heightShould: Float = 0f //一个字母的高度和间隔之和
-    private var textX :Float = 0f //文本中心x轴
-    private var radius: Float=0f //背景圆的半径
+    private var textX: Float = 0f //字母文本中心x轴
+    private var radius: Float = 0f //背景圆的半径
+
+    private var showRadius: Float = 0f //显示背景圆的半径
+    private var showPadding: Float = 0f //显示背景圆与字母的偏移
+    private var showTextX: Float = 0f //显示文本的字母中心
+    private var showTriangleHalf: Float = 0f// 显示背景三角形的斜边的一半
+    private var showTriangleX1: Float = 0f// 显示背景三角形第一个x轴
+    private var showTriangleX2: Float = 0f// 显示背景三角形第二个x轴
+    private var baseLineDistance: Float = 0f //  显示背景文本的基准线偏移量
+    private var paddingY: Float = 0f //显示图的半径大于正常情况下heightShould，第一个字母的heightShould
     private val TAG = "LetterNavigationView"
+
     override fun onDraw(canvas: Canvas?) {
 
 
         for (i in 0 until length) {
             //计算Y轴的坐标
-            val startY = (i + 1) * heightShould + paddingTop
-            Log.i(TAG, "LetterNavigationView_onDraw: $startY  ")
-            if (actionState&&currentIndex>-1&&currentIndex==i) {
-                val textY = (i + 1) * heightShould + paddingTop - (mRect!!.height() / 2)
+            val startY = if (paddingY == 0f) {
+                (i + 1) * heightShould + paddingTop
+            } else {
+                (i) * heightShould + paddingTop + paddingY
+            }
+
+            if (actionState && currentIndex > -1 && currentIndex == i) {
+                val textY = if (paddingY == 0f) {
+                    (i + 1) * heightShould + paddingTop + paddingY - (mRect!!.height() / 2)
+                } else {
+                    (i) * heightShould + paddingTop + paddingY - (mRect!!.height() / 2)
+                }
                 canvas?.drawCircle(textX, textY, radius, backgroundPaint!!)
+                checkTextPaint!!.textSize = mTextSize
                 canvas?.drawText(arrayContent!![i], textX, startY, checkTextPaint!!)
-            }else{
+
+                checkTextPaint!!.textSize = showTextSize
+                canvas?.drawCircle(showTextX, textY, showRadius, showBackgroundPaint!!)
+                //   showBackgroundPaint!!.xfermode = PorterDuffXfermode(PorterDuff.Mode.SCREEN)
+                val p = Path()
+                p.moveTo(showTriangleX1, textY - showTriangleHalf)
+                p.lineTo(showTriangleX1, textY + showTriangleHalf)
+                p.lineTo(showTriangleX2, textY)
+                p.close()
+                canvas?.drawPath(p, showBackgroundPaint!!)
+                //  showBackgroundPaint!!.xfermode =null
+                canvas?.drawText(
+                    arrayContent!![i],
+                    showTextX,
+                    textY + baseLineDistance,
+                    checkTextPaint!!
+                )
+            } else {
+                if (!actionState && isClick && currentIndex > -1 && currentIndex == i) {
+                    val textY = if (paddingY == 0f) {
+                        (currentIndex + 1) * heightShould + paddingTop + paddingY - (mRect!!.height() / 2)
+                    } else {
+                        (currentIndex) * heightShould + paddingTop + paddingY - (mRect!!.height() / 2)
+                    }
+                    canvas?.drawCircle(textX, textY, radius, backgroundPaint!!)
+                    checkTextPaint!!.textSize = mTextSize
+                    canvas?.drawText(arrayContent!![currentIndex], textX, startY, checkTextPaint!!)
+                    continue
+                }
                 //绘制文字
                 canvas?.drawText(arrayContent!![i], textX, startY, textPaint!!)
             }
@@ -148,33 +218,60 @@ class LetterNavigationView : View {
         val eventY = event?.y
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                actionState = true
-                scrollCount(eventY!!)
+                if (event.x > showArea) {
+                    actionState = true
+                    isClick = true
+                    scrollCount(eventY!!)
+                    return true
+                }
             }
             MotionEvent.ACTION_MOVE -> {
+
+                isClick = false
+
                 scrollCount(eventY!!)
             }
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                 actionState = false
                 currentLetter = null
-                currentIndex = -1
                 invalidate()
-
             }
         }
-        return true
+        return super.onTouchEvent(event)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
 
-        interval = (h-paddingTop-paddingBottom - length * mRect!!.height()).toFloat() / (length + 1)
-        heightShould = interval+mRect!!.height()
-        textX = (width / 2).toFloat()
+        interval =
+            (h - paddingTop - paddingBottom - length * mRect!!.height()).toFloat() / (length + 1)
+        heightShould = interval + mRect!!.height()
+
+        val textY = 1 * heightShould + paddingTop - (mRect!!.height() / 2)
+        val showDistance = showRadius + paddingTop
+        if (showDistance > textY) {
+            paddingY = showRadius + (mRect!!.height() / 2)
+            interval =
+                (h - paddingTop - paddingBottom - paddingY * 2 - (length - 2) * mRect!!.height()) / (length - 1)
+            heightShould = interval + mRect!!.height()
+
+        }
+        //字母文本的中心x轴
+        textX = paddingLeft + showArea + mContentDiv + mRect!!.width() / 2
         //背景圆的半径
-        radius = mRect!!.height()-(mContentDiv/2)
-        Log.i(TAG, "LetterNavigationView_onSizeChanged: $interval  $heightShould")
+        radius = mRect!!.height() - (mContentDiv / 2)
+        //显示文本的中心x轴
+        showTextX = paddingLeft + showRadius
+        showTriangleHalf = sqrt(showRadius.pow(2) * 2) / 2
+
+        showTriangleX1 = showTextX + showTriangleHalf
+        showTriangleX2 = showTextX + showTriangleHalf * 2
+
+        val fontMetrics = checkTextPaint!!.fontMetrics
+        baseLineDistance = (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom
     }
+
+    private var showArea: Float = 0f
 
     /**
      *     不管设置的是真实尺寸或者是包裹内容，都会以内容的最小尺寸为
@@ -189,20 +286,26 @@ class LetterNavigationView : View {
         //获取控件的尺寸
         var mWidth = MeasureSpec.getSize(widthMeasureSpec)
         var mHeight = MeasureSpec.getSize(heightMeasureSpec)
-        val length = getContentLength()
-        mRect = measureTextSize()
+
+        mRect = measureTextSize(textPaint!!)
+        val showRect = measureTextSize(checkTextPaint!!)
+        showRadius = (showRect.height()).toFloat()
+
         //内容的最小宽度
         val contentWidth = mRect!!.width() + mContentDiv * 2
         //内容的最小高度
         val contentHeight = mRect!!.height() * length + mContentDiv * (length + 1)
 
+        //显示区域的宽度
+        showArea = showRadius * 3 + showPadding
+
         when (widthMode) {
             MeasureSpec.AT_MOST -> {
-                mWidth = (contentWidth + paddingLeft + paddingRight).toInt()
+                mWidth = (contentWidth + showArea + paddingLeft + paddingRight).toInt()
             }
             MeasureSpec.EXACTLY -> {
                 if (mWidth < contentWidth) {
-                    mWidth = (contentWidth + paddingLeft + paddingRight).toInt()
+                    mWidth = (contentWidth + showArea + paddingLeft + paddingRight).toInt()
                 }
             }
             else -> {
@@ -210,7 +313,13 @@ class LetterNavigationView : View {
         }
         when (heightMode) {
             MeasureSpec.AT_MOST -> {
-                mHeight = (contentHeight + paddingTop + paddingBottom).toInt()
+                val showDiameter = showRadius * 2
+                mHeight = if (contentHeight < showDiameter) {
+                    (showDiameter + paddingTop + paddingBottom).toInt()
+                } else {
+                    (contentHeight + paddingTop + paddingBottom).toInt()
+                }
+
             }
             MeasureSpec.EXACTLY -> {
                 if (mHeight < contentHeight) {
@@ -222,38 +331,36 @@ class LetterNavigationView : View {
         }
         setMeasuredDimension(mWidth, mHeight)
     }
-    private var currentIndex :Int =-1
+
+    private var currentIndex: Int = -1
     private var currentLetter: String? = null
     /**
      * 滑动计算
      */
     private fun scrollCount(eventY: Float) {
 
-        val index: Int = ((eventY - paddingTop) /heightShould).toInt()
+        val index: Int =
+            NumberUtils.round(((eventY - paddingTop) / heightShould).toDouble()).toInt() - 1
         if (index in 0 until length) {
             val letter = arrayContent!![index]
-            Log.i(TAG, "LetterNavigationView_scrollCount: $letter  ")
             if (!currentLetter.equals(letter)) {
                 currentLetter = letter
                 currentIndex = index
                 invalidate()
-                mNavigationChangeListener?.onChange(letter,index)
+                mNavigationChangeListener?.onChange(letter, index)
             }
-        } else {
-            Log.i(TAG, "LetterNavigationView_scrollCount: $ 超出  ")
         }
     }
 
     /**
      * 测量文字的尺寸
      */
-    fun measureTextSize(): Rect {
+    fun measureTextSize(paint: Paint): Rect {
         val mRect = Rect()
-        if (textPaint != null) {
-            textPaint!!.getTextBounds("田", 0, 1, mRect)
-        }
+        paint.getTextBounds("田", 0, 1, mRect)
         return mRect
     }
+
     private var length = 0 //字母长度
     fun getContentLength(): Int {
         if (arrayContent != null) {
@@ -261,16 +368,23 @@ class LetterNavigationView : View {
         }
         return 0
     }
-    fun setLetterArray(array:Array<String>){
+
+    fun setLetterArray(array: Array<String>) {
+        if (array.isEmpty()) {
+            throw RuntimeException("数组长度必须大于0")
+        }
+
         arrayContent = array
         length = getContentLength()
+        requestLayout()
     }
-    private var mNavigationChangeListener:OnNavigationChangeListener ?=null
-    fun setNavigationChangeListener(listener:OnNavigationChangeListener){
+
+    private var mNavigationChangeListener: OnNavigationChangeListener? = null
+    fun setNavigationChangeListener(listener: OnNavigationChangeListener) {
         mNavigationChangeListener = listener
     }
 
-    interface  OnNavigationChangeListener{
-        fun onChange(letter:String,position:Int)
+    interface OnNavigationChangeListener {
+        fun onChange(letter: String, position: Int)
     }
 }

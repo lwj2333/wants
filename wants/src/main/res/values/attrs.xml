@@ -61,8 +61,11 @@
         <attr name="android:textSize"/>
         <attr name="android:textColor"/>
         <attr name="textColor_checked" format="color" />
-        <attr name="content_div" format="dimension"/>
+        <attr name="contentPadding" format="dimension"/>
         <attr name="background_color" format="color" />
+        <attr name="showBackgroundColor" format="color"/>
+        <attr name="showTextSize" format="dimension"/>
+        <attr name="showPadding" format="dimension"/>
     </declare-styleable>
 
 </resources>
