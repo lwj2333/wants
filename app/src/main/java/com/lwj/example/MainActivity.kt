@@ -32,6 +32,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         bt_text.setOnClickListener(this)
         bt_edittext.setOnClickListener(this)
         bt_imageview.setOnClickListener(this)
+
     }
 private val TAG ="MainActivity"
     override fun onClick(v: View?) {

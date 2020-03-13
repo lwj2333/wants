@@ -67,5 +67,7 @@
         <attr name="showTextSize" format="dimension"/>
         <attr name="showPadding" format="dimension"/>
     </declare-styleable>
-
+<declare-styleable name="GuaGuaKaView">
+    <attr name="Shade_bg" format="reference|color"/>
+</declare-styleable>
 </resources>

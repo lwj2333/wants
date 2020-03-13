@@ -103,6 +103,7 @@
             app:layout_constraintTop_toBottomOf="@+id/bt_edittext" />
 
     <com.lwj.wants.recyclerview.widgets.TestBaseLineView
+            android:id="@+id/testBaseLineView"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_marginStart="8dp"
@@ -110,8 +111,10 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:background="@color/baby_blue"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/bt_imageview" />
+
+
 </android.support.constraint.ConstraintLayout>

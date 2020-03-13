@@ -40,6 +40,8 @@
         <activity android:name=".edittext.EditTextActivity" />
         <activity android:name=".imagview.ImageViewActivity" />
         <activity android:name=".recyclerview.widgets.LetterNavigationActivity" />
+        <activity android:name=".imagview.GuaGuaKaActivity" />
+        <activity android:name=".imagview.LoadingActivity" />
     </application>
 
 </manifest>
