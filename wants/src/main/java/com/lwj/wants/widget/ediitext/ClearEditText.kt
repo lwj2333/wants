@@ -5,21 +5,22 @@ import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.LinearLayout
 import com.lwj.wants.R
 import android.text.InputFilter
 import android.content.res.ColorStateList
-import android.graphics.Rect
-import android.util.Log
+import android.support.constraint.ConstraintLayout
+import android.support.constraint.ConstraintSet
+
 import android.util.TypedValue
+
 import android.view.inputmethod.EditorInfo
 
 
-class ClearEditText : LinearLayout {
+
+class ClearEditText : ConstraintLayout {
 
     constructor(context: Context?) : super(context, null)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
@@ -27,7 +28,7 @@ class ClearEditText : LinearLayout {
         initAttrs(attrs)
     }
 
-    private val TAG = "ClearEditText"
+
     private fun initAttrs(attrs: AttributeSet?) {
         val typedArray =
             context?.obtainStyledAttributes(attrs, R.styleable.ClearEditText)
@@ -118,6 +119,10 @@ class ClearEditText : LinearLayout {
                         val gravity = typedArray.getInt(attr, -1)
                         editText!!.gravity = gravity
                     }
+                    R.styleable.ClearEditText_background -> {
+                        val background = typedArray.getResourceId(attr, R.color.white)
+                        editText!!.setBackgroundResource(background)
+                    }
                     R.styleable.ClearEditText_showRightDrawable -> {
                         val show = typedArray.getBoolean(attr, true)
                         img!!.visibility = if (show) {
@@ -129,6 +134,7 @@ class ClearEditText : LinearLayout {
                 }
             }
         }
+
         typedArray?.recycle()
     }
 
@@ -137,16 +143,13 @@ class ClearEditText : LinearLayout {
     private var textWatcher: TextWatcher? = null
 
     private fun initView() {
-        LayoutInflater.from(context)
-            .inflate(R.layout.view_clear_edittext, this)
-        editText = findViewById(R.id.editText)
-        img = findViewById(R.id.imgDelete)
+
+        setView()
         img!!.setOnClickListener {
             editText!!.text = null
         }
         editText!!.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                Log.i(TAG, "ClearEditText_afterTextChanged: ${s?.length}  ")
                 if (editText!!.isFocused && s?.length ?: 0 > 0) {
                     showIcon(true)
                 } else {
@@ -180,6 +183,73 @@ class ClearEditText : LinearLayout {
             }
         }
     }
+
+    private var changeConstraintSet: ConstraintSet? = null
+    /**
+     * 动态添加控件
+     */
+    private fun setView() {
+
+
+        editText = EditText(context)
+        editText!!.id = View.generateViewId()
+
+
+        img = ImageView(context)
+        img!!.id = View.generateViewId()
+        img!!.setImageResource(R.drawable.ic_action_delete)
+        img!!.scaleType = ImageView.ScaleType.CENTER
+
+        addView(editText)
+        addView(img)
+        val c = ConstraintSet()
+        c.clone(this)
+        c.constrainWidth(editText!!.id, 0)
+        c.constrainHeight(editText!!.id, 0)
+        c.setDimensionRatio(img!!.id, "h,1:1") //宽高比 1:1
+        c.connect(img!!.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        c.connect(img!!.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+        c.connect(img!!.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+
+        c.constrainWidth(editText!!.id, ConstraintSet.MATCH_CONSTRAINT)
+        c.constrainHeight(editText!!.id, ConstraintSet.WRAP_CONTENT)
+        c.connect(editText!!.id, ConstraintSet.END, img!!.id, ConstraintSet.START)
+        c.connect(editText!!.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+        c.connect(editText!!.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        c.connect(
+            editText!!.id,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM
+        )
+        // c.setMargin(editText!!.id,ConstraintSet.TOP,DensityUtil.dip2px(context,2f))
+        c.applyTo(this)
+        changeConstraintSet = ConstraintSet()
+        changeConstraintSet!!.clone(c)
+    }
+    private var flag = 0
+    private fun setParams(){
+        if (flag==0){
+            flag += 1
+            changeConstraintSet!!.constrainHeight(editText!!.id, ConstraintSet.MATCH_CONSTRAINT)
+            changeConstraintSet!!.applyTo(this)
+            img!!.visibility = View.GONE // editText发生变化 需要重新设置img的visibility
+        }
+    }
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+
+        when (MeasureSpec.getMode(heightMeasureSpec)) {
+            MeasureSpec.AT_MOST -> {
+            }
+            MeasureSpec.EXACTLY -> {
+                setParams()
+            }
+            else -> {
+            }
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
 
     /**
      * 返回EditText中的文本数据
@@ -217,7 +287,6 @@ class ClearEditText : LinearLayout {
         editText!!.clearFocus()
         super.clearFocus()
     }
-
 
 
     private fun showIcon(show: Boolean) {
