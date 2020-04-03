@@ -5,9 +5,9 @@
         <attr name="spinner_text_size" format="dimension" />
         <attr name="spinner_text_color" format="color" />
         <attr name="spinner_padding" format="integer" />
-        <attr name="spinner_default_content" format="string"/>
-        <attr name="durationTime" format="integer"/>
-        <attr name="spinner_popup_item_drawable" format="integer"/>
+        <attr name="spinner_default_content" format="string" />
+        <attr name="durationTime" format="integer" />
+        <attr name="spinner_popup_item_drawable" format="integer" />
     </declare-styleable>
 
     <declare-styleable name="SlidingLayout">
@@ -26,49 +26,50 @@
     </declare-styleable>
 
     <declare-styleable name="NoScrollGridLayout">
-        <attr name="nsg_count" format="integer"/>
-        <attr name="nsg_rowMargin" format="dimension"/>
+        <attr name="nsg_count" format="integer" />
+        <attr name="nsg_rowMargin" format="dimension" />
         <attr name="nsg_columnMargin" format="dimension" />
     </declare-styleable>
 
 
     <declare-styleable name="TextViewGradient">
-        <attr name="TextViewGradient_round" format="dimension"/>
+        <attr name="TextViewGradient_round" format="dimension" />
         <attr name="TextViewGradient_colorStart" format="color" />
         <attr name="TextViewGradient_colorEnd" format="color" />
     </declare-styleable>
 
     <declare-styleable name="ClearEditText">
-        <attr name="android:textSize"/>
-        <attr name="android:textColor"/>
-        <attr name="android:textColorHint"/>
-        <attr name="android:maxLines"/>
-        <attr name="android:inputType"/>
-        <attr name="android:maxLength"/>
-        <attr name="android:drawableRight"/>
-        <attr name="android:drawablePadding"/>
-        <attr name="android:hint"/>
-        <attr name="android:text"/>
-        <attr name="android:ellipsize"/>
-        <attr name="android:cursorVisible"/>
-        <attr name="android:textColorLink"/>
-        <attr name="android:autoLink"/>
-        <attr name="android:gravity"/>
-        <attr name="android:enabled"/>
-        <attr name="background"  format="reference"/>
-        <attr name="showRightDrawable" format="boolean"/>
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="android:textColorHint" />
+        <attr name="android:maxLines" />
+        <attr name="android:inputType" />
+        <attr name="android:maxLength" />
+        <attr name="android:drawableRight" />
+        <attr name="android:drawablePadding" />
+        <attr name="android:hint" />
+        <attr name="android:text" />
+        <attr name="android:ellipsize" />
+        <attr name="android:cursorVisible" />
+        <attr name="android:textColorLink" />
+        <attr name="android:autoLink" />
+        <attr name="android:gravity" />
+        <attr name="android:imeOptions" />
+        <attr name="android:enabled" />
+        <attr name="background" format="reference" />
+        <attr name="showRightDrawable" format="boolean" />
     </declare-styleable>
     <declare-styleable name="LetterNavigationView">
-        <attr name="android:textSize"/>
-        <attr name="android:textColor"/>
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
         <attr name="textColor_checked" format="color" />
-        <attr name="contentPadding" format="dimension"/>
+        <attr name="contentPadding" format="dimension" />
         <attr name="background_color" format="color" />
-        <attr name="showBackgroundColor" format="color"/>
-        <attr name="showTextSize" format="dimension"/>
-        <attr name="showPadding" format="dimension"/>
+        <attr name="showBackgroundColor" format="color" />
+        <attr name="showTextSize" format="dimension" />
+        <attr name="showPadding" format="dimension" />
     </declare-styleable>
-<declare-styleable name="GuaGuaKaView">
-    <attr name="Shade_bg" format="reference|color"/>
-</declare-styleable>
+    <declare-styleable name="GuaGuaKaView">
+        <attr name="Shade_bg" format="reference|color" />
+    </declare-styleable>
 </resources>

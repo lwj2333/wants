@@ -119,6 +119,13 @@ class ClearEditText : ConstraintLayout {
                         val gravity = typedArray.getInt(attr, -1)
                         editText!!.gravity = gravity
                     }
+                    R.styleable.ClearEditText_android_imeOptions->{
+                       val imeOptions = typedArray.getInteger(
+                           attr,
+                            EditorInfo.IME_ACTION_NONE
+                        )
+                        editText!!.imeOptions = imeOptions
+                    }
                     R.styleable.ClearEditText_background -> {
                         val background = typedArray.getResourceId(attr, R.color.white)
                         editText!!.setBackgroundResource(background)
