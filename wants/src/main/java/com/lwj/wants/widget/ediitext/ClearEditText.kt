@@ -13,6 +13,7 @@ import android.text.InputFilter
 import android.content.res.ColorStateList
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
+import android.util.Log
 
 import android.util.TypedValue
 
@@ -190,7 +191,7 @@ class ClearEditText : ConstraintLayout {
             }
         }
     }
-
+      private val TAG = "ClearEditText"
     private var changeConstraintSet: ConstraintSet? = null
     /**
      * 动态添加控件

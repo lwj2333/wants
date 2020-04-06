@@ -2,9 +2,11 @@ package com.lwj.example.edittext
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.lwj.example.BaseActivity
@@ -36,7 +38,17 @@ class EditTextActivity : BaseActivity() {
                 }
             }
         })
+
+        edit_1.getEditText().setOnEditorActionListener { _, actionId, _ ->
+            when (actionId) {
+                EditorInfo.IME_ACTION_SEARCH -> {
+                    Log.i(TAG, "ProductActivity_initAction:$   搜索")
+                }
+            }
+            return@setOnEditorActionListener true
+        }
     }
+     private val TAG = "EditTextActivity"
     fun clearFocus(view:View){
         when(view.tag){
             0->{
