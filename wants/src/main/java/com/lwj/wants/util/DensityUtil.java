@@ -11,7 +11,7 @@ import android.content.Context;
          * @param dpValue  dp
          * @return  计算后返回的像素
          */
-        public static int dip2px(Context context, float dpValue) {
+        public static int dip2px(Context context, int dpValue) {
             final float scale = context.getResources().getDisplayMetrics().density;  
             return (int) (dpValue * scale + 0.5f);  
         }

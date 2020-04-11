@@ -57,7 +57,7 @@ class TabView : RadioGroup {
     }
 
     private val TAG = "TabView"
-    private var drawableSize: Float = 50f
+    private var drawableSize: Int = 50
     private fun createDrawable(drawableID: Int): Drawable? {
         if (drawableID == 0) {
             return null
@@ -72,23 +72,18 @@ class TabView : RadioGroup {
         return drawable
     }
 
-    fun setDrawableSize(size: Float) {
+    fun setDrawableSize(size: Int) {
         drawableSize = size
     }
 
-    private var leftP: Float = 0f
-    private var rightP: Float = 0f
-    private var topP: Float = 0f
-    private var bottomP: Float = 0f
+    private var leftP: Int = 0
+    private var rightP: Int = 0
+    private var topP: Int = 0
+    private var bottomP: Int = 0
 
-    fun setPadding(p: Float) {
+    fun setPadding(p: Int) {
         setPadding(p, p, p, p)
     }
 
-    fun setPadding(l: Float, t: Float, r: Float, b: Float) {
-        leftP = l
-        topP = t
-        rightP = r
-        bottomP = b
-    }
+
 }

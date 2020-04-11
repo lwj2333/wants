@@ -14,8 +14,8 @@ class TabActivity :BaseActivity() {
         setContentView(R.layout.activity_tab)
         initList()
         radio.orientation =LinearLayout.HORIZONTAL
-        radio.setDrawableSize(60f)
-        radio.setPadding(10f)
+        radio.setDrawableSize(60)
+        radio.setPadding(10)
         radio.addData(data)
         radio.check(0)
     }

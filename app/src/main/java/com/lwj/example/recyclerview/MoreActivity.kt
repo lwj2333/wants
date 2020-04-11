@@ -23,7 +23,7 @@ class MoreActivity : BaseActivity() {
         initList()
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.addItemDecoration(RecycleViewDivider(this, LinearLayoutManager.HORIZONTAL,
-            DensityUtil.dip2px(this,2f), ContextCompat.getColor(this, R.color.red)))
+            DensityUtil.dip2px(this,2), ContextCompat.getColor(this, R.color.red)))
         adapter = object : RecyclerAdapterMore<TestModel>(this, list) {
             override fun createView(
                 context: Context, inflater: LayoutInflater,

@@ -22,7 +22,7 @@ class SimpleActivity : BaseActivity() {
         recycler.addItemDecoration(
             RecycleViewDivider(
                 this, LinearLayoutManager.HORIZONTAL,
-                DensityUtil.dip2px(this, 2f), ContextCompat.getColor(this, R.color.red)
+                DensityUtil.dip2px(this, 2), ContextCompat.getColor(this, R.color.red)
             )
         )
         adapter = object : RecyclerAdapterList<TestModel>(this, list, R.layout.item_simple) {

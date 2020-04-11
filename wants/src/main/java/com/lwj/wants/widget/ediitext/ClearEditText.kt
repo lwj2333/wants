@@ -13,12 +13,10 @@ import android.text.InputFilter
 import android.content.res.ColorStateList
 import android.support.constraint.ConstraintLayout
 import android.support.constraint.ConstraintSet
-import android.util.Log
-
 import android.util.TypedValue
 
 import android.view.inputmethod.EditorInfo
-
+import com.lwj.wants.util.DensityUtil
 
 
 class ClearEditText : ConstraintLayout {
@@ -215,9 +213,12 @@ class ClearEditText : ConstraintLayout {
         c.constrainWidth(editText!!.id, 0)
         c.constrainHeight(editText!!.id, 0)
         c.setDimensionRatio(img!!.id, "h,1:1") //宽高比 1:1
+
         c.connect(img!!.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
         c.connect(img!!.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
         c.connect(img!!.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        c.setMargin(img!!.id,ConstraintSet.END,DensityUtil.dip2px(context,10))
+
 
         c.constrainWidth(editText!!.id, ConstraintSet.MATCH_CONSTRAINT)
         c.constrainHeight(editText!!.id, ConstraintSet.WRAP_CONTENT)
